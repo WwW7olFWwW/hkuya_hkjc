@@ -1,0 +1,178 @@
+import { Box, Grid, Paper, Typography, List, ListItem, ListItemIcon, ListItemText, Chip } from '@mui/material'
+import { Section } from '@/components/layout/section'
+import { PageContainer } from '@/components/layout/page-container'
+import LocationOnIcon from '@mui/icons-material/LocationOn'
+import CheckIcon from '@mui/icons-material/Check'
+
+interface Position {
+  title: string
+  description: string
+  requirements: string[]
+  location: string
+  icon: React.ReactNode
+}
+
+const positions: Position[] = [
+  {
+    title: "人工智能開發實習生",
+    description: "參與AI模型開發和優化，體驗前沿技術應用",
+    requirements: [
+      "計算機科學或相關專業在讀學生",
+      "熟悉Python編程語言",
+      "對機器學習和深度學習有基本了解",
+      "良好的問題解決能力"
+    ],
+    location: "深圳",
+    icon: (
+      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+      </svg>
+    )
+  },
+  {
+    title: "金融科技實習生",
+    description: "參與金融產品開發，了解金融科技最新發展",
+    requirements: [
+      "金融、計算機或相關專業在讀學生",
+      "對金融科技領域有濃厚興趣",
+      "具備基本的編程能力",
+      "良好的溝通能力"
+    ],
+    location: "上海",
+    icon: (
+      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+    )
+  },
+  {
+    title: "物聯網開發實習生",
+    description: "參與智能硬件開發，體驗物聯網應用實踐",
+    requirements: [
+      "電子工程或相關專業在讀學生",
+      "熟悉常見單片機開發",
+      "對物聯網技術有基本了解",
+      "具備團隊協作精神"
+    ],
+    location: "廣州",
+    icon: (
+      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+      </svg>
+    )
+  }
+]
+
+function PositionCard({ position }: { position: Position }) {
+  return (
+    <Paper
+      elevation={1}
+      sx={{
+        p: 4,
+        height: '100%',
+        transition: 'all 0.3s ease',
+        '&:hover': {
+          transform: 'translateY(-4px)',
+          boxShadow: 4
+        }
+      }}
+    >
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 3 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          <Box
+            sx={{
+              width: 48,
+              height: 48,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderRadius: 2,
+              bgcolor: 'primary.light',
+              color: 'primary.main',
+              flexShrink: 0
+            }}
+          >
+            {position.icon}
+          </Box>
+          <Typography variant="h6">{position.title}</Typography>
+        </Box>
+        <Chip
+          icon={<LocationOnIcon />}
+          label={position.location}
+          size="small"
+          sx={{
+            bgcolor: 'primary.lighter',
+            color: 'primary.main',
+            '& .MuiChip-icon': {
+              color: 'primary.main'
+            }
+          }}
+        />
+      </Box>
+
+      <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+        {position.description}
+      </Typography>
+
+      <Typography variant="subtitle2" gutterBottom sx={{ mb: 2 }}>
+        要求：
+      </Typography>
+
+      <List sx={{ p: 0 }}>
+        {position.requirements.map((req, index) => (
+          <ListItem key={index} sx={{ px: 0, py: 0.5 }}>
+            <ListItemIcon sx={{ minWidth: 32, color: 'primary.main' }}>
+              <CheckIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText
+              primary={req}
+              primaryTypographyProps={{
+                variant: 'body2',
+                color: 'text.secondary'
+              }}
+            />
+          </ListItem>
+        ))}
+      </List>
+    </Paper>
+  )
+}
+
+export function InternshipPositions() {
+  return (
+    <Section id="positions">
+      <PageContainer>
+        <Box sx={{ textAlign: 'center', mb: 8 }}>
+          <Typography 
+            variant="h3" 
+            component="h2"
+            sx={{ 
+              mb: 2,
+              fontWeight: 'bold'
+            }}
+          >
+            實習崗位
+          </Typography>
+          <Typography 
+            variant="subtitle1" 
+            color="text.secondary"
+            sx={{ 
+              maxWidth: 600,
+              mx: 'auto'
+            }}
+          >
+            為期四個星期的實習計劃，讓青年人親身體驗內地創科發展
+          </Typography>
+        </Box>
+
+        <Grid container spacing={4}>
+          {positions.map((position, index) => (
+            <Grid item xs={12} md={6} lg={4} key={index}>
+              <PositionCard position={position} />
+            </Grid>
+          ))}
+        </Grid>
+      </PageContainer>
+    </Section>
+  )
+}

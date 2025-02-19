@@ -11,8 +11,8 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 
 interface Position {
-  company: string;
-  role?: string;
+  company: React.ReactNode;
+  role?: React.ReactNode;
   requirements?: string[];
   duties?: string[];
 }
@@ -29,32 +29,77 @@ const positionData: LocationGroup[] = [
     description: '科創企業，包括但不限於以下企業（持續更新中）',
     positions: [
       {
-        company: '中國科學院生態環境研究中心 Chinese Academy of Sciences',
-        role: '科研實習崗 Research Internship Position',
+        company: (
+          <> 
+            <Typography variant="h6" component="div">(Suitable for English speaking students)</Typography>
+            <Typography variant="h6" component="div">中國科學院生態環境研究中心</Typography>
+            <Typography variant="subtitle1" color="text.secondary">Chinese Academy of Sciences</Typography>
+          </>
+        ),
+        role: (
+          <>
+            <Typography variant="subtitle1">科研實習崗(環境水質學)</Typography>
+            <Typography variant="subtitle2" color="text.secondary">Research Internship Position (Environmental Water Quality Science)</Typography>
+          </>
+        ),
         duties: ['以水質淨化研究為主，涵蓋材料、人工智慧、淨水工藝、水生態等，相關方向的科學研究','Focus on water quality purification research, covering materials, artificial intelligence, water treatment processes, aquatic ecology, and other related scientific research directions.'],
         requirements: ['有相關專業學術背景，熟練使用分析儀器優先','Academic background in relevant fields, proficiency in using analytical instruments is preferred.']
       },
 
       {
-        company: '中國科學院生態環境研究中心 Chinese Academy of Sciences',
-        role: '科研實習崗 Research Internship Position',
+        company: (
+          <>
+            <Typography variant="h6" component="div">(Suitable for English speaking students)</Typography>
+            <Typography variant="h6" component="div">中國科學院生態環境研究中心</Typography>
+            <Typography variant="subtitle1" color="text.secondary">Chinese Academy of Sciences</Typography>
+          </>
+        ),
+        role: (
+          <>
+            <Typography variant="subtitle1">科研實習崗(生物多樣性保護)</Typography>
+            <Typography variant="subtitle2" color="text.secondary">Research Internship Position (Biodiversity Conservation)</Typography>
+          </>
+        ),
         duties: ['參加大熊貓棲息地三維結構遙感監測相關研究 ','Participate in research related to the 3D structural remote sensing monitoring of giant panda habitats.'],
         requirements: ['有遙感、GIS、機器視覺等相關專業背景優先','A background in remote sensing, GIS, machine vision, or related fields is preferred.']
       },
 
       {
-        company: '中國科學院生態環境研究中心 Chinese Academy of Sciences',
-        role: '科研實習崗 Research Internship Position',
+        company: (
+          <>
+            <Typography variant="h6" component="div">(Suitable for English speaking students)</Typography>
+            <Typography variant="h6" component="div">中國科學院生態環境研究中心</Typography>
+            <Typography variant="subtitle1" color="text.secondary">Chinese Academy of Sciences</Typography>
+          </>
+        ),
+        role: (
+          <>
+            <Typography variant="subtitle1">科研實習崗(生物多樣性保護)</Typography>
+            <Typography variant="subtitle2" color="text.secondary">Research Internship Position (Biodiversity Conservation)</Typography>
+          </>
+        ),
         duties: ['參加大熊貓分佈區生物多樣性多模態資料獲取、傳輸系統研發的相關工作','Participate in the research and development of the multimodal data collection and transmission system for biodiversity in giant panda distribution areas.'],
         requirements: ['有資料傳輸、多模態大資料管理、等相關專業背景優先','A background in data transmission, multimodal big data management, or related fields is preferred.']
       },
 
       {
-        company: '中國科學院生態環境研究中心 Chinese Academy of Sciences',
-        role: '科研實習崗 Research Internship Position',
+        company: (
+          <>
+           <Typography variant="h6" component="div">(Suitable for English speaking students)</Typography>
+            <Typography variant="h6" component="div">中國科學院生態環境研究中心</Typography>
+            <Typography variant="subtitle1" color="text.secondary">Chinese Academy of Sciences</Typography>
+          </>
+        ),
+        role: (
+          <>
+            <Typography variant="subtitle1">科研實習崗(生態、環境、地理、動植物、自然資源等相關專業)</Typography>
+            <Typography variant="subtitle2" color="text.secondary">Research Internship Position (Ecology, Environment, Geography, Zoology, Botany, Natural Resources, and related fields)</Typography>
+          </>
+        ),
         duties: ['參加國家公園相關研究項目','Participate in research projects related to national parks.'],
-        requirements: ['生態、環境、地理、動植物、自然資源等相關專業','Academic background in relevant fields.']
-      },      
+        requirements: ['有相關專業學術背景','Academic background in relevant fields.']
+      },  
+ 
       
       {
         company: '北京眸視科技有限公司',
@@ -165,6 +210,13 @@ const positionData: LocationGroup[] = [
     positions: [      
     
       {
+        company: '騰訊集團',
+        role: '稍候公佈',
+        duties: ['稍候公佈'],
+        requirements: ['稍候公佈']
+      },
+
+      {
         company: '北京聲智科技有限公司',
         role: '抖店運營實習生',
         duties: ['負責抖店相關運營工作，上下連結，詳情頁修改、資料拉取、店鋪分評論等',
@@ -242,17 +294,17 @@ function PositionCard({ position, showDivider = true }: { position: Position; sh
       <Box sx={{ py: 2 }}>
         <Box sx={{ display: 'flex', alignItems: 'flex-start', mb: 1 }}>
           <BusinessIcon sx={{ color: 'primary.main', mr: 2, mt: 0.5 }} />
-          <Typography variant="h6" component="h3">
+          <Box component="h3">
             {position.company}
-          </Typography>
+          </Box>
         </Box>
 
         {position.role && (
           <Box sx={{ display: 'flex', alignItems: 'flex-start', ml: 4, mb: 1 }}>
             <WorkIcon sx={{ color: 'text.secondary', mr: 2, mt: 0.5 }} />
-            <Typography variant="subtitle1" color="text.primary">
+            <Box>
               {position.role}
-            </Typography>
+            </Box>
           </Box>
         )}
 

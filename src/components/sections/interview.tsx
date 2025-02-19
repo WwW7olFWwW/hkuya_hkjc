@@ -92,7 +92,17 @@ export function Interview() {
                   color: 'primary.darker'
                 }}
               >
-                面試日期 Interview Date: 8 March 2025
+                面試日期 Interview Date:
+              </Typography>
+              <Typography 
+                variant="h6" 
+                component="h3" 
+                sx={{ 
+                  fontWeight: 'medium',
+                  color: 'primary.darker'
+                }}
+              >
+                8 March 2025
               </Typography>
             </Stack>
           </Stack>

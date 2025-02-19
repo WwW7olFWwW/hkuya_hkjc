@@ -25,9 +25,16 @@ const timelineData: TimelineEvent[] = [
   },
   {
     date: '8 March 2025',
-    content: ['首輪面試', 'Interview'],
+    content: ['面試', 'Interview'],
     isHighlight: true
   },
+
+  {
+    date: 'April 2025',
+    content: ['發送錄取通知書及確認崗位', 'Admission letter will be issued and positions will be confirmed'],
+    isHighlight: true
+  },
+
   {
     date: '7 June 2025 (T.B.C)',
     content: ['出發前簡介會',  'Information Session'],

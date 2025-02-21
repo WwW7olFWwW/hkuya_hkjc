@@ -84,7 +84,7 @@ export function ProjectIntro() {
               lineHeight: 1.3
             }}
           >
-            &ldquo;實踐科創·探知歷史&rdquo;2025
+            &ldquo;實踐科創·探知歷史&rdquo;2024-2025
           </Typography>
           <Typography 
             variant="h4" 
@@ -119,7 +119,7 @@ export function ProjectIntro() {
               fontWeight: 500
             }}
           >
-            Summer Internship Program 2025
+            Summer Internship Program 2024-2025
           </Typography>
         </Box>
 

@@ -274,10 +274,60 @@ const positionData: LocationGroup[] = [
     },
     {
       company: '深圳市微馬視覺智慧科技有限公司',
-      role: '稍候公佈',
+      role: 'UI/UX設計師',
       duties: ['稍候公佈'],
-      requirements: ['稍候公佈',]
+      requirements: ['就讀相應的課程',]
     },
+
+    {
+      company: '深圳市微馬視覺智慧科技有限公司',
+      role: 'AI算法實習崗位',
+      duties: ['稍候公佈'],
+      requirements: ['就讀相應的課程',]
+    },
+
+    {
+      company: '深圳市微馬視覺智慧科技有限公司',
+      role: '數據庫實習崗位',
+      duties: ['稍候公佈'],
+      requirements: ['就讀相應的課程',]
+    },
+
+    {
+      company: '深圳市微馬視覺智慧科技有限公司',
+      role: '市場部實習崗位',
+      duties: ['稍候公佈'],
+      requirements: ['就讀相應的課程',]
+    },
+
+    {
+      company: '深圳市微馬視覺智慧科技有限公司',
+      role: '嵌入式工程師',
+      duties: ['稍候公佈'],
+      requirements: ['就讀相應的課程',]
+    },
+
+    {
+      company: '深圳市微馬視覺智慧科技有限公司',
+      role: '數據收集/數據標注',
+      duties: ['稍候公佈'],
+      requirements: ['就讀相應的課程',]
+    },
+
+    {
+      company: '深圳市微馬視覺智慧科技有限公司',
+      role: 'Web developer',
+      duties: ['稍候公佈'],
+      requirements: ['就讀相應的課程',]
+    },
+
+    {
+      company: '深圳市微馬視覺智慧科技有限公司',
+      role: 'Frontend engineer',
+      duties: ['稍候公佈'],
+      requirements: ['就讀相應的課程',]
+    },
+
     {
       company: '深圳締宙科技',
       role: '稍候公佈',

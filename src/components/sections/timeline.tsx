@@ -14,17 +14,17 @@ interface TimelineEvent {
 
 const timelineData: TimelineEvent[] = [
   {
-    date: 'Early February till 28 February, 2025',
+    date: 'March, 2025',
     content: ['宣傳推廣', 'Promotion Period'],
     isHighlight: true
   },
   {
-    date: '28 Feb 2025 22:00',
+    date: '21 March 2025',
     content: ['報名截止', 'Applications Deadline'],
     isHighlight: true
   },
   {
-    date: '8 March 2025',
+    date: '29 March 2025',
     content: ['面試', 'Interview'],
     isHighlight: true
   },

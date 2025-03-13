@@ -5,6 +5,8 @@ import { Box } from "@mui/material";
 import { NavBar } from "@/components/navigation/nav-bar";
 import { Footer } from "@/components/navigation/footer";
 import { Suspense } from "react";
+import Script from 'next/script';
+
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -59,6 +61,15 @@ export default function RootLayout({
             <Footer />
           </div>
         </ThemeProvider>
+        <Script
+          defer
+          strategy="lazyOnload"  // 延遲加載
+          src="https://cloud.umami.is/script.js"
+          data-website-id="cd476be1-8f80-467e-b145-6b0fc427d7cd"
+          data-auto-track="true"    // 可選：自動追蹤頁面訪問          
+        />
+
+
       </body>
     </html>
   );

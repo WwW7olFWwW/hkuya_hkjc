@@ -67,10 +67,8 @@ export function Interview() {
               </Stack>
             </Stack>
 
-            <Stack 
-              direction="row" 
-              spacing={2} 
-              alignItems="center"
+            <Stack
+              spacing={3}
               sx={{
                 backgroundColor: 'primary.lighter',
                 p: 3,
@@ -81,29 +79,59 @@ export function Interview() {
                 color="primary" 
                 sx={{ 
                   fontSize: 28,
-                  flexShrink: 0
+                  alignSelf: 'flex-start'
                 }} 
               />
-              <Typography 
-                variant="h6" 
-                component="h3" 
-                sx={{ 
-                  fontWeight: 'medium',
-                  color: 'primary.darker'
-                }}
+              <Stack
+                direction={{ xs: 'column', md: 'row' }}
+                spacing={3}
+                divider={<Box sx={{ borderRight: 1, borderColor: 'primary.main', opacity: 0.3 }} />}
               >
-                面試日期 Interview Date:
-              </Typography>
-              <Typography 
-                variant="h6" 
-                component="h3" 
-                sx={{ 
-                  fontWeight: 'medium',
-                  color: 'primary.darker'
-                }}
-              >
-                29 March 2025
-              </Typography>
+                <Stack direction="row" spacing={2} alignItems="center">
+                  <Typography 
+                    variant="h6" 
+                    component="h3" 
+                    sx={{ 
+                      fontWeight: 'medium',
+                      color: 'primary.darker'
+                    }}
+                  >
+                    第一輪面試日期 First Round Interview Date:
+                  </Typography>
+                  <Typography 
+                    variant="h6" 
+                    component="h3" 
+                    sx={{ 
+                      fontWeight: 'medium',
+                      color: 'primary.darker'
+                    }}
+                  >
+                    29 March 2025
+                  </Typography>
+                </Stack>
+                <Stack direction="row" spacing={2} alignItems="center">
+                  <Typography 
+                    variant="h6" 
+                    component="h3" 
+                    sx={{ 
+                      fontWeight: 'medium',
+                      color: 'primary.darker'
+                    }}
+                  >
+                    第二輪面試日期 Second Round Interview Date:
+                  </Typography>
+                  <Typography 
+                    variant="h6" 
+                    component="h3" 
+                    sx={{ 
+                      fontWeight: 'medium',
+                      color: 'primary.darker'
+                    }}
+                  >
+                    10 May 2025
+                  </Typography>
+                </Stack>
+              </Stack>
             </Stack>
           </Stack>
         </Paper>

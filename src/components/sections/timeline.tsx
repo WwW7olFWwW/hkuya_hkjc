@@ -25,13 +25,25 @@ const timelineData: TimelineEvent[] = [
   },
   {
     date: '29 March 2025',
-    content: ['面試', 'Interview'],
+    content: ['第一輪面試', 'First Round Interview'],
     isHighlight: true
   },
 
   {
     date: 'April 2025',
-    content: ['發送錄取通知書及確認崗位', 'Admission letter will be issued and positions will be confirmed'],
+    content: ['發送首批錄取通知書及確認崗位', 'First batch of admission letters will be issued and positions will be confirmed'],
+    isHighlight: true
+  },
+
+  {
+    date: '10 May 2025',
+    content: ['第二輪面試', 'Second Round Interview'],
+    isHighlight: true
+  },
+
+  {
+    date: 'May 2025',
+    content: ['發送第二批錄取通知書及確認崗位', 'Second batch of admission letters will be issued and positions will be confirmed'],
     isHighlight: true
   },
 

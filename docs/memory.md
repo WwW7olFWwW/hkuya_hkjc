@@ -5,3 +5,4 @@
 - UI 使用最新 shadcn-vue default 風格；不使用 Umami。
 - 實習崗位與時間表資料已抽離至 `data/positions.ts`、`data/timeline.ts`。
 - Google Sheet 連結尚未接入，後續可新增 CSV 轉換流程。
+- Dev 反代：/hkjc 目前 Caddy 指向 [::1]:5173（VitePress dev 預設只綁 IPv6 loopback）。

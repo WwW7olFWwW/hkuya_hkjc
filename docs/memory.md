@@ -4,5 +4,8 @@
 - 單頁式 landing：ProjectIntro → Interview → Timeline → Positions → AboutUs → Contact。
 - UI 使用最新 shadcn-vue default 風格；不使用 Umami。
 - 實習崗位與時間表資料已抽離至 `data/positions.ts`、`data/timeline.ts`。
+- 內容改為 Supabase 驅動：`lib/content/defaultContent.ts` 為 fallback，`content_blocks` 會在前端 runtime 載入並透過 Realtime 更新。
+- 環境變數：`VITE_SUPABASE_URL`、`VITE_SUPABASE_ANON_KEY`（參考 `.env.example`）。
+- 管理頁：`admin.md` → `/admin.html`，使用共用帳號登入後可編輯各區塊內容。
 - Google Sheet 連結尚未接入，後續可新增 CSV 轉換流程。
 - Dev 反代：/hkjc 目前 Caddy 指向 [::1]:5173（VitePress dev 預設只綁 IPv6 loopback）。

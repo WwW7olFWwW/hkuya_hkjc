@@ -6,6 +6,7 @@ export default defineConfig({
   title: '『實踐科創·探知歷史』2025暑期實習團',
   description: '實習生招募',
   base: '/hkjc/',
+  head: [['link', { rel: 'icon', href: '/hkjc/favicon.ico' }]],
   srcExclude: ['old/**'],
   vite: {
     resolve: {

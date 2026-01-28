@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { withBase } from "vitepress"
 import SectionBlock from "@/components/layout/SectionBlock.vue"
 import PageContainer from "@/components/layout/PageContainer.vue"
 
@@ -27,6 +28,10 @@ const organizations: Organization[] = [
     role: "支持單位 Support Unit"
   }
 ]
+
+function resolveAsset(path: string) {
+  return withBase(path)
+}
 </script>
 
 <template>
@@ -45,9 +50,9 @@ const organizations: Organization[] = [
           <div class="flex-1 flex items-center justify-center w-full">
             <div v-if="org.logo" class="mt-5">
               <a v-if="org.url" :href="org.url" target="_blank" rel="noopener noreferrer" class="inline-flex">
-                <img :src="org.logo" :alt="org.name" class="h-20 w-auto object-contain" />
+                <img :src="resolveAsset(org.logo)" :alt="org.name" class="h-20 w-auto object-contain" />
               </a>
-              <img v-else :src="org.logo" :alt="org.name" class="h-20 w-auto object-contain" />
+              <img v-else :src="resolveAsset(org.logo)" :alt="org.name" class="h-20 w-auto object-contain" />
             </div>
             <div v-else class="mt-5 text-brand-blue font-bold leading-tight">
               <p>中央政府駐港聯絡辦</p>

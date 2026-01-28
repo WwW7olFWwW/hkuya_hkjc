@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { withBase } from "vitepress"
 import { Menu } from "lucide-vue-next"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
@@ -24,13 +25,17 @@ const navItems: NavItem[] = [
   { titleZh: '關於我們', titleEn: 'About Us', href: '#about' },
   { titleZh: '聯絡我們', titleEn: 'Contact Us', href: '#contactus' }
 ]
+
+function resolveAsset(path: string) {
+  return withBase(path)
+}
 </script>
 
 <template>
   <header class="fixed top-0 inset-x-0 z-50 gradient-bar backdrop-blur border-b border-white/10">
     <div class="mx-auto flex items-center justify-between px-4 sm:px-6 lg:px-8 h-16 sm:h-20">
       <a href="#project-intro" class="flex items-center gap-3">
-        <img src="/images/3x.png" alt="HKUYA" class="h-10 sm:h-12 w-auto" />
+        <img :src="resolveAsset('/images/3x.png')" alt="HKUYA" class="h-10 sm:h-12 w-auto" />
       </a>
 
       <nav class="hidden md:flex items-center gap-1">

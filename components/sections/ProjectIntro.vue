@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { withBase } from "vitepress"
 import { Calendar, MapPin, Users, User, ZoomIn } from "lucide-vue-next"
 import SectionBlock from "@/components/layout/SectionBlock.vue"
 import PageContainer from "@/components/layout/PageContainer.vue"
@@ -35,6 +36,10 @@ const infoItems = [
     contentEn: '40 participants'
   }
 ]
+
+function resolveAsset(path: string) {
+  return withBase(path)
+}
 </script>
 
 <template>
@@ -59,7 +64,7 @@ const infoItems = [
             <DialogTrigger as-child>
               <button type="button" class="relative w-full text-left">
                 <img
-                  src="/images/poster.webp"
+                  :src="resolveAsset('/images/poster.webp')"
                   alt="實習計劃海報"
                   class="w-full rounded-xl shadow-md transition-transform duration-200 hover:scale-[1.02]"
                 />
@@ -70,7 +75,7 @@ const infoItems = [
               </button>
             </DialogTrigger>
             <DialogScrollContent class="max-w-5xl">
-              <img src="/images/poster.webp" alt="實習計劃海報" class="w-full rounded-lg" />
+              <img :src="resolveAsset('/images/poster.webp')" alt="實習計劃海報" class="w-full rounded-lg" />
             </DialogScrollContent>
           </Dialog>
 

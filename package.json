@@ -21,6 +21,8 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.18",
+    "@testing-library/vue": "^8.1.0",
+    "@vitejs/plugin-vue": "^6.0.3",
     "autoprefixer": "^10.4.23",
     "happy-dom": "^20.4.0",
     "postcss": "^8.5.6",

@@ -4,19 +4,39 @@ import SectionBlock from "@/components/layout/SectionBlock.vue"
 import PageContainer from "@/components/layout/PageContainer.vue"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Separator } from "@/components/ui/separator"
-import { positionGroups } from "@/data/positions"
+
+defineProps<{
+  content: {
+    fields: {
+      titleZh: string
+      titleEn: string
+      groups: Array<{
+        location: string
+        description: string
+        positions: Array<{
+          companyLines: string[]
+          roleLines?: string[]
+          requirements?: string[]
+          duties?: string[]
+        }>
+      }>
+    }
+  }
+}>()
 </script>
 
 <template>
   <SectionBlock id="positions" tone="muted">
     <PageContainer>
       <div class="text-center mb-8">
-        <h2 class="section-title text-2xl sm:text-3xl">實習崗位 Job Positions</h2>
+        <h2 class="section-title text-2xl sm:text-3xl">
+          {{ content.fields.titleZh }} {{ content.fields.titleEn }}
+        </h2>
       </div>
 
       <Accordion type="single" collapsible default-value="panel-0" class="space-y-4">
         <AccordionItem
-          v-for="(group, groupIndex) in positionGroups"
+          v-for="(group, groupIndex) in content.fields.groups"
           :key="group.location"
           :value="`panel-${groupIndex}`"
           class="section-card overflow-hidden"

@@ -2,13 +2,24 @@
 import { Mail, Phone } from "lucide-vue-next"
 import SectionBlock from "@/components/layout/SectionBlock.vue"
 import PageContainer from "@/components/layout/PageContainer.vue"
+
+defineProps<{
+  content: {
+    fields: {
+      titleZh: string
+      titleEn: string
+    }
+  }
+}>()
 </script>
 
 <template>
   <SectionBlock id="contactus" tone="muted">
     <PageContainer>
       <div class="text-center mb-8">
-        <h2 class="section-title text-2xl sm:text-3xl">聯絡我們 Contact us</h2>
+        <h2 class="section-title text-2xl sm:text-3xl">
+          {{ content.fields.titleZh }} {{ content.fields.titleEn }}
+        </h2>
       </div>
 
       <div class="section-card p-5 sm:p-6 md:p-8 max-w-3xl mx-auto">

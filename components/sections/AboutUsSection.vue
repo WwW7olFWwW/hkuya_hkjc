@@ -29,6 +29,15 @@ const organizations: Organization[] = [
   }
 ]
 
+defineProps<{
+  content: {
+    fields: {
+      titleZh: string
+      titleEn: string
+    }
+  }
+}>()
+
 function resolveAsset(path: string) {
   return withBase(path)
 }
@@ -38,7 +47,9 @@ function resolveAsset(path: string) {
   <SectionBlock id="about">
     <PageContainer>
       <div class="text-center mb-8">
-        <h2 class="section-title text-2xl sm:text-3xl">關於我們 About us</h2>
+        <h2 class="section-title text-2xl sm:text-3xl">
+          {{ content.fields.titleZh }} {{ content.fields.titleEn }}
+        </h2>
       </div>
 
       <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

@@ -3,7 +3,25 @@ import { Calendar, CircleDollarSign, Hotel, ShieldCheck, Utensils, Bus, Info } f
 import SectionBlock from "@/components/layout/SectionBlock.vue"
 import PageContainer from "@/components/layout/PageContainer.vue"
 import { Separator } from "@/components/ui/separator"
-import { timelineEvents, projectDetails } from "@/data/timeline"
+
+defineProps<{
+  content: {
+    fields: {
+      titleZh: string
+      titleEn: string
+      steps: Array<{
+        date: string
+        content: string[]
+        highlight?: boolean
+      }>
+      notes: Array<{
+        icon: string
+        title: string
+        content: string[]
+      }>
+    }
+  }
+}>()
 
 function getDetailIcon(key: string) {
   if (key === 'money') {
@@ -29,13 +47,15 @@ function getDetailIcon(key: string) {
   <SectionBlock id="project-timeline">
     <PageContainer>
       <div class="text-center mb-8">
-        <h2 class="section-title text-2xl sm:text-3xl">時間表 Timeline</h2>
+        <h2 class="section-title text-2xl sm:text-3xl">
+          {{ content.fields.titleZh }} {{ content.fields.titleEn }}
+        </h2>
       </div>
 
       <div class="grid gap-6 lg:grid-cols-[2fr_1fr]">
         <div class="section-card p-5 sm:p-6 md:p-8">
           <ul class="relative border-l border-slate-200 pl-6 space-y-6">
-            <li v-for="event in timelineEvents" :key="event.date" class="relative">
+            <li v-for="event in content.fields.steps" :key="event.date" class="relative">
               <span
                 :class="[
                   'absolute -left-[11px] top-1.5 flex h-5 w-5 items-center justify-center rounded-full border-2',
@@ -68,7 +88,7 @@ function getDetailIcon(key: string) {
           </div>
           <Separator class="mb-4" />
           <div class="space-y-5">
-            <div v-for="detail in projectDetails" :key="detail.title" class="flex gap-3">
+            <div v-for="detail in content.fields.notes" :key="detail.title" class="flex gap-3">
               <component :is="getDetailIcon(detail.icon)" class="h-6 w-6 text-brand-green" />
               <div>
                 <p class="font-semibold text-slate-800 mb-1">{{ detail.title }}</p>

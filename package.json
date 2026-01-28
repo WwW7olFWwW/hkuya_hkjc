@@ -1,0 +1,21 @@
+{
+  "name": "hkuya-hkjc",
+  "version": "1.0.0",
+  "description": "HKUYA HKJC VitePress site",
+  "type": "commonjs",
+  "scripts": {
+    "docs:dev": "vitepress dev .",
+    "docs:build": "vitepress build .",
+    "docs:preview": "vitepress preview ."
+  },
+  "dependencies": {
+    "vue": "^3.5.27"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.23",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.1.18",
+    "typescript": "^5.9.3",
+    "vitepress": "^2.0.0-alpha.15"
+  }
+}

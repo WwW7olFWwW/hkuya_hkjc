@@ -1,3 +1,10 @@
+@config "../tailwind.config.ts";
+@source "../index.md";
+@source "../.vitepress/**/*.{js,ts,vue}";
+@source "../components/**/*.{js,ts,vue}";
+@source "../components/navigation/NavBar.vue";
+@source "../data/**/*.{js,ts}";
+@source "../styles/**/*.{css}";
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

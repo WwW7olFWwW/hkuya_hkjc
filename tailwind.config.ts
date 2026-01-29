@@ -1,4 +1,5 @@
 import type { Config } from 'tailwindcss'
+import defaultTheme from 'tailwindcss/defaultTheme'
 import animate from 'tailwindcss-animate'
 
 const config: Config = {
@@ -11,6 +12,7 @@ const config: Config = {
     './styles/**/*.{css}'
   ],
   theme: {
+    ...defaultTheme,
     extend: {
       colors: {
         border: 'hsl(var(--border))',

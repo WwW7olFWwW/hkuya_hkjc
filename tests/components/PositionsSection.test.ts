@@ -34,7 +34,8 @@ describe("PositionsSection", function () {
     })
 
     expect(screen.getByText(/測試崗位/)).toBeTruthy()
-    expect(screen.getByText("北京")).toBeTruthy()
+    const matches = screen.getAllByText("北京")
+    expect(matches.length).toBeGreaterThan(0)
     expect(screen.getByText("公司 A")).toBeTruthy()
     expect(screen.getByText("要求一")).toBeTruthy()
   })

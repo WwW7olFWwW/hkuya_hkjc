@@ -59,6 +59,7 @@ function buildTimelineSchema(): SchemaEntry {
           type: "Control",
           scope: "#/properties/steps",
           options: {
+            childLabelProp: "date",
             detail: {
               type: "VerticalLayout",
               elements: [
@@ -73,6 +74,7 @@ function buildTimelineSchema(): SchemaEntry {
           type: "Control",
           scope: "#/properties/notes",
           options: {
+            childLabelProp: "title",
             detail: {
               type: "VerticalLayout",
               elements: [
@@ -128,6 +130,7 @@ function buildPositionsSchema(): SchemaEntry {
           type: "Control",
           scope: "#/properties/groups",
           options: {
+            childLabelProp: "location",
             detail: {
               type: "VerticalLayout",
               elements: [
@@ -137,6 +140,7 @@ function buildPositionsSchema(): SchemaEntry {
                   type: "Control",
                   scope: "#/properties/positions",
                   options: {
+                    childLabelProp: "companyLines",
                     detail: {
                       type: "VerticalLayout",
                       elements: [
@@ -152,6 +156,76 @@ function buildPositionsSchema(): SchemaEntry {
             }
           }
         }
+      ]
+    }
+  }
+}
+
+function buildAboutUsSchema(): SchemaEntry {
+  return {
+    schema: {
+      type: "object",
+      properties: {
+        titleZh: { type: "string" },
+        titleEn: { type: "string" },
+        organizations: {
+          type: "array",
+          items: {
+            type: "object",
+            properties: {
+              role: { type: "string" },
+              name: { type: "string" },
+              logo: { type: "string" },
+              url: { type: "string" }
+            }
+          }
+        }
+      }
+    },
+    uischema: {
+      type: "VerticalLayout",
+      elements: [
+        { type: "Control", scope: "#/properties/titleZh" },
+        { type: "Control", scope: "#/properties/titleEn" },
+        {
+          type: "Control",
+          scope: "#/properties/organizations",
+          options: {
+            childLabelProp: "role",
+            detail: {
+              type: "VerticalLayout",
+              elements: [
+                { type: "Control", scope: "#/properties/role" },
+                { type: "Control", scope: "#/properties/name" },
+                { type: "Control", scope: "#/properties/logo" },
+                { type: "Control", scope: "#/properties/url" }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  }
+}
+
+function buildContactSchema(): SchemaEntry {
+  return {
+    schema: {
+      type: "object",
+      properties: {
+        titleZh: { type: "string" },
+        titleEn: { type: "string" },
+        email: { type: "string" },
+        tel: { type: "string" }
+      }
+    },
+    uischema: {
+      type: "VerticalLayout",
+      elements: [
+        { type: "Control", scope: "#/properties/titleZh" },
+        { type: "Control", scope: "#/properties/titleEn" },
+        { type: "Control", scope: "#/properties/email" },
+        { type: "Control", scope: "#/properties/tel" }
       ]
     }
   }
@@ -187,7 +261,9 @@ function buildGenericSchema(slug: string): SchemaEntry {
 
 const blockSchemas: BlockSchemas = {
   timeline: buildTimelineSchema(),
-  positions: buildPositionsSchema()
+  positions: buildPositionsSchema(),
+  about_us: buildAboutUsSchema(),
+  contact: buildContactSchema()
 }
 
 export function getBlockSchema(slug: string) {

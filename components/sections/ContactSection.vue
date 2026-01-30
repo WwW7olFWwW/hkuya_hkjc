@@ -3,14 +3,20 @@ import { Mail, Phone } from "lucide-vue-next"
 import SectionBlock from "@/components/layout/SectionBlock.vue"
 import PageContainer from "@/components/layout/PageContainer.vue"
 
-defineProps<{
+const props = defineProps<{
   content: {
     fields: {
       titleZh: string
       titleEn: string
+      email: string
+      tel: string
     }
   }
 }>()
+
+function buildMailto(email: string) {
+  return "mailto:" + email
+}
 </script>
 
 <template>
@@ -28,12 +34,14 @@ defineProps<{
             <Mail class="h-5 w-5 text-brand-green" />
             <span>
               Email:
-              <a href="mailto:mail@hkuya.org.hk" class="text-brand-blue hover:underline">mail@hkuya.org.hk</a>
+              <a :href="buildMailto(content.fields.email)" class="text-brand-blue hover:underline">
+                {{ content.fields.email }}
+              </a>
             </span>
           </div>
           <div class="flex items-center gap-3">
             <Phone class="h-5 w-5 text-brand-green" />
-            <span>Tel: 2598 9385</span>
+            <span>Tel: {{ content.fields.tel }}</span>
           </div>
         </div>
       </div>

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed } from "vue"
 import { withBase } from "vitepress"
 import SectionBlock from "@/components/layout/SectionBlock.vue"
 import PageContainer from "@/components/layout/PageContainer.vue"
@@ -10,33 +11,19 @@ interface Organization {
   role: string
 }
 
-const organizations: Organization[] = [
-  {
-    name: "",
-    logo: "/images/logo.png",
-    url: "https://www.hkuya.org.hk/",
-    role: "承辦單位 Organizer"
-  },
-  {
-    name: "",
-    logo: "/images/hkjc_140_bi_tc_logo_cmyk_coated_full_colour_ol.png",
-    url: "https://www.hkjc.com/",
-    role: "贊助單位 Sponsor"
-  },
-  {
-    name: "中央政府駐港聯絡辦青年工作部",
-    role: "支持單位 Support Unit"
-  }
-]
-
-defineProps<{
+const props = defineProps<{
   content: {
     fields: {
       titleZh: string
       titleEn: string
+      organizations?: Organization[]
     }
   }
 }>()
+
+const organizations = computed(function () {
+  return props.content.fields.organizations || []
+})
 
 function resolveAsset(path: string) {
   return withBase(path)
@@ -66,12 +53,11 @@ function resolveAsset(path: string) {
               <img v-else :src="resolveAsset(org.logo)" :alt="org.name" class="h-20 w-auto object-contain" />
             </div>
             <div v-else class="mt-5 text-brand-blue font-bold leading-tight">
-              <p>中央政府駐港聯絡辦</p>
-              <p>青年工作部</p>
+              <p v-if="org.name">{{ org.name }}</p>
             </div>
           </div>
 
-          <p v-if="org.logo" class="mt-4 text-sm font-semibold text-brand-blue">{{ org.name }}</p>
+          <p v-if="org.logo && org.name" class="mt-4 text-sm font-semibold text-brand-blue">{{ org.name }}</p>
         </div>
       </div>
     </PageContainer>

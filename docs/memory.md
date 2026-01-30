@@ -8,6 +8,7 @@
 - 環境變數：`VITE_SUPABASE_URL`、`VITE_SUPABASE_ANON_KEY`（參考 `.env.example`）。
 - 管理頁：`admin.md` → `/admin.html`，使用共用帳號登入後可編輯各區塊內容。
 - 後台表單改用 JSON Forms（@jsonforms/core、@jsonforms/vue、@jsonforms/vue-vanilla），支援巢狀陣列欄位新增/刪除（timeline/positions）。
+- About Us/Contact 已改為後台可編輯（organizations/email/tel）。
 - Google Sheet 連結尚未接入，後續可新增 CSV 轉換流程。
 - Dev 反代：/hkjc 目前 Caddy 指向 [::1]:5173（VitePress dev 預設只綁 IPv6 loopback）。
 - Tailwind v4：`styles/global.css` 需加 `@config "../tailwind.config.ts"`（可搭配 `@source` 指定掃描範圍）；`tailwind.config.ts` 要合併 `defaultTheme` 才會產生 spacing/字級/rounded 等核心 utilities。

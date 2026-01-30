@@ -4,20 +4,57 @@ import { positionGroups } from "../../data/positions"
 export const defaultContent = {
   project_intro: {
     fields: {
-      titleZh: "港澳青年內地實習計劃",
-      titleEn: "HKUYA Internship Program",
+      titleZh: "“實踐科創·探知歷史”2024-2025",
+      subtitleZh: "暑期實習團",
+      titleEn: "“Reimagining History, Innovating Tomorrow”",
+      subtitleEn: "Summer Internship Program 2024-2025",
       descriptionZh:
-        "香港青年聯會（HKUYA）與香港賽馬會慈善信託基金攜手舉辦『港澳青年內地實習計劃』，旨在加強港澳青年與內地的交流，提升專業能力，拓闊視野。",
+        "“實踐科創·探知歷史”暑期實習計劃旨在透過實習認識科創行業，體驗不同企業的文化背景及創新科技業界的工作，同時，讓實習生在工作中學習相關的專業知識，培養他們日後投身不同領域事業的興趣。參與者將有機會在北京和大灣區（廣州、深圳）的知名企業和機構進行實習，拓展視野，增強專業能力。計劃不僅鼓勵來自不同學校的青年學子互相交流與合作，還設有一系列的增值活動，包括企業參訪、文化名勝考察以及與業界領袖及大學生的交流對話。這些活動將為參與者提供全方位的學習體驗，助力他們在職業發展上邁出堅實步伐。",
       descriptionEn:
-        "The Hong Kong United Youth Association (HKUYA) collaborates with The Hong Kong Jockey Club Charities Trust to launch the HKUYA Internship Program, fostering exchanges between Hong Kong and Macau youth and the mainland, enhancing professional skills and broadening horizons.",
-      locationZh: "內地",
-      locationEn: "Mainland China",
-      programDurationZh: "約四星期",
-      programDurationEn: "Around 4 weeks",
-      deadlineZh: "21 March 2025",
-      deadlineEn: "21 March 2025",
-      ctaTextZh: "立即報名",
-      ctaTextEn: "Apply Now"
+        "“Reimagining History, Innovating Tomorrow” Summer Internship Program 2025 aims to introduce participants to the innovation and technology industry through internships, allowing them to experience the cultural backgrounds of different companies and work in the innovative tech sector. At the same time, the program provides interns with the opportunity to acquire relevant professional knowledge and develop an interest in pursuing careers in various fields. Participants will have the chance to intern at renowned companies and organizations in Beijing and the Greater Bay Area (Guangzhou, Shenzhen), expanding their horizons and enhancing their professional capabilities. The program encourages young people from different schools to communicate and collaborate and includes a series of value-added activities, such as company visits, cultural heritage tours, and exchanges with industry leaders and university students. These activities will offer participants a comprehensive learning experience, helping them take solid steps in their career development.",
+      posterUrl: "/images/poster.webp",
+      infoCards: [
+        {
+          titleZh: "實習日期",
+          titleEn: "Internship Period",
+          contentZh: "2025年6月22日至7月19日",
+          contentEn: "June 22 - July 19, 2025"
+        },
+        {
+          titleZh: "實習崗位範疇",
+          titleEn: "Positions",
+          contentZh: "科創產業",
+          contentEn: "Science, Innovation and Technology Industry"
+        },
+        {
+          titleZh: "實習地點",
+          titleEn: "Location",
+          contentZh: "北京及大灣區（廣州和深圳）",
+          contentEn: "Beijing and Greater Bay Area (Guangzhou, Shenzhen)"
+        },
+        {
+          titleZh: "名額",
+          titleEn: "Quota",
+          contentZh: "40名",
+          contentEn: "40 participants"
+        }
+      ],
+      eligibilityZh: [
+        "a. 18 歲以上的各大院校之全日制學生或應屆畢業生",
+        "b. （i）持有有效香港永久居民身份證 或（ii）持有有效香港居民身份證並在香港就讀全日制課程"
+      ],
+      eligibilityEn: [
+        "a. Full-time students or recent graduates from various universities who are 18 years of age or older; and",
+        "b. (i) Hold a valid Hong Kong Permanent Resident Identity Card, or (ii) Hold a valid Hong Kong Resident Identity Card and are enrolled in a full-time program in Hong Kong."
+      ],
+      feeZh: [
+        "團費：全免（包括來回交通、住宿、保險、交流活動等費用）",
+        "按金：港幣2,500元正（順利完成整個實習計劃後全數退還，包括完成實習工作、實習報告及本會預先指定的學習任務）"
+      ],
+      feeEn: [
+        "Fee: Free of Charge (covering accommodation, round-trip transportation, insurance, and breakfast)",
+        "Deposits: HKD2,500 (fully refundable upon completion of the exchange and submission of a report and designated tasks)"
+      ]
     }
   },
   interview: {

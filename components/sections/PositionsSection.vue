@@ -69,6 +69,11 @@ function hasPositions() {
             type="button"
             class="tabs-button"
             :class="isActiveIndex(groupIndex) ? 'tabs-button--active' : ''"
+            role="tab"
+            :id="'tab-' + groupIndex"
+            :aria-selected="isActiveIndex(groupIndex)"
+            aria-controls="positions-panel"
+            :tabindex="isActiveIndex(groupIndex) ? 0 : -1"
             @click="setActiveIndex(groupIndex)"
           >
             <div class="flex items-center gap-2">
@@ -79,7 +84,13 @@ function hasPositions() {
           </button>
         </div>
 
-        <div class="section-card p-5 sm:p-6 md:p-8">
+        <div
+          class="section-card card-outline p-5 sm:p-6 md:p-8"
+          role="tabpanel"
+          id="positions-panel"
+          :aria-labelledby="'tab-' + activeIndex"
+          tabindex="0"
+        >
           <div class="flex flex-wrap items-start justify-between gap-3 mb-6">
             <div>
               <h3 class="text-xl font-semibold text-brand-blue">{{ activeGroup.location }}</h3>

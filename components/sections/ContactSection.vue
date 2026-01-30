@@ -28,10 +28,12 @@ function buildMailto(email: string) {
         </h2>
       </div>
 
-      <div class="section-card content-card p-5 sm:p-6 md:p-8">
-        <div class="space-y-4 text-sm sm:text-base">
-          <div class="flex items-center gap-3">
-            <Mail class="h-5 w-5 text-brand-green" />
+      <div class="section-card content-card card-outline p-5 sm:p-6 md:p-8">
+        <div class="grid gap-4 text-sm sm:text-base sm:grid-cols-2">
+          <div class="rounded-2xl card-muted p-4 flex items-center gap-3">
+            <span class="icon-pill">
+              <Mail class="h-4 w-4" />
+            </span>
             <span>
               Email:
               <a :href="buildMailto(content.fields.email)" class="text-brand-blue hover:underline">
@@ -39,8 +41,10 @@ function buildMailto(email: string) {
               </a>
             </span>
           </div>
-          <div class="flex items-center gap-3">
-            <Phone class="h-5 w-5 text-brand-green" />
+          <div class="rounded-2xl card-muted p-4 flex items-center gap-3">
+            <span class="icon-pill">
+              <Phone class="h-4 w-4" />
+            </span>
             <span>Tel: {{ content.fields.tel }}</span>
           </div>
         </div>

@@ -24,6 +24,10 @@ const socialLinks = [
 ]
 
 const currentYear = new Date().getFullYear()
+
+function isPrimaryLink(link: LinkItem) {
+  return link.label === '立即報名'
+}
 </script>
 
 <template>
@@ -38,7 +42,7 @@ const currentYear = new Date().getFullYear()
                 v-for="link in quickLinks"
                 :key="link.label"
                 :href="link.href"
-                class="block text-sm hover:text-white"
+                :class="isPrimaryLink(link) ? 'footer-cta' : 'block text-sm hover:text-white'"
               >
                 {{ link.label }}
               </a>

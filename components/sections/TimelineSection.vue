@@ -83,7 +83,7 @@ function showCheck(index: number) {
       </div>
 
       <div class="grid gap-6 lg:grid-cols-[2fr_1fr]">
-        <div class="section-card p-5 sm:p-6 md:p-8">
+        <div class="section-card card-outline p-5 sm:p-6 md:p-8">
           <div class="timeline-stepper">
             <div
               v-for="(event, index) in content.fields.steps"
@@ -107,7 +107,7 @@ function showCheck(index: number) {
           </div>
         </div>
 
-        <div class="section-card p-5 sm:p-6 md:p-8 bg-slate-50">
+        <div class="section-card card-muted p-5 sm:p-6 md:p-8">
           <div class="flex items-center gap-2 mb-3">
             <Info class="h-5 w-5 text-brand-green" />
             <h3 class="text-lg font-semibold">備註 Note</h3>

@@ -10,14 +10,20 @@ const props = withDefaults(defineProps<SectionBlockProps>(), {
 
 function getSectionClass() {
   if (props.tone === 'muted') {
-    return 'bg-white/80'
+    return 'section-muted'
   }
   return 'bg-transparent'
+}
+
+function getSectionStyle() {
+  return {
+    scrollMarginTop: 'var(--site-header-height)'
+  }
 }
 </script>
 
 <template>
-  <section :id="props.id" :class="['py-12 sm:py-14 md:py-16', getSectionClass()]">
+  <section :id="props.id" :class="['py-12 sm:py-14 md:py-16', getSectionClass()]" :style="getSectionStyle()">
     <slot />
   </section>
 </template>

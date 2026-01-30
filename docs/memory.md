@@ -14,3 +14,4 @@
 - Tailwind v4：`styles/global.css` 需加 `@config "../tailwind.config.ts"`（可搭配 `@source` 指定掃描範圍）；`tailwind.config.ts` 要合併 `defaultTheme` 才會產生 spacing/字級/rounded 等核心 utilities。
 - 所有 section 版型對齊 root；內容改由 Supabase `content.fields.*` 驅動，但保留 root 的結構與 CSS class（如 timeline/tabs/position）。
 - 2026-01-30 視覺調整方向：活力活動感，新增 CTA 橙色與淡色背景層級，強化導覽對齊與錨點 scroll margin。
+- 已套用活動感視覺調整：導覽列對齊、背景紋理、CTA 橙色、主次卡片層級、Tabs a11y、Contact/Interview 區塊版型更新。

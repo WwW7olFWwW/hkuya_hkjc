@@ -28,6 +28,20 @@ const organizations = computed(function () {
 function resolveAsset(path: string) {
   return withBase(path)
 }
+
+function getOrganizationClass(index: number) {
+  const variant = index % 3
+
+  if (variant === 1) {
+    return 'org-card--blue'
+  }
+
+  if (variant === 2) {
+    return 'org-card--peach'
+  }
+
+  return 'org-card--green'
+}
 </script>
 
 <template>
@@ -40,8 +54,13 @@ function resolveAsset(path: string) {
       </div>
 
       <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <div v-for="org in organizations" :key="org.role" class="section-card p-5 flex flex-col items-center text-center min-h-[220px]">
-          <span class="rounded-full bg-brand-light px-3 py-1 text-xs font-semibold text-brand-blue">
+        <div
+          v-for="(org, index) in organizations"
+          :key="org.role"
+          class="section-card p-5 flex flex-col items-center text-center min-h-[220px]"
+          :class="getOrganizationClass(index)"
+        >
+          <span class="pill-accent">
             {{ org.role }}
           </span>
 

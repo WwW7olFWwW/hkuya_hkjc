@@ -23,12 +23,6 @@ import FooterBar from '../../components/navigation/FooterBar.vue'
 
 .site-main {
   flex: 1;
-  padding-top: 84px;
-}
-
-@media (max-width: 640px) {
-  .site-main {
-    padding-top: 72px;
-  }
+  padding-top: var(--site-header-height);
 }
 </style>

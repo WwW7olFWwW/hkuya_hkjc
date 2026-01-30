@@ -54,32 +54,36 @@ function getInfoIcon(index: number) {
 <template>
   <SectionBlock id="project-intro">
     <PageContainer>
-      <div class="text-center mb-10">
-        <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold leading-tight">
-          {{ content.fields.titleZh }}
-        </h1>
-        <p class="text-xl sm:text-2xl text-brand-green font-medium mt-2">
-          {{ content.fields.subtitleZh }}
-        </p>
-        <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold leading-tight mt-4">
-          {{ content.fields.titleEn }}
-        </h2>
-        <p class="text-xl sm:text-2xl text-brand-green font-medium mt-2">
-          {{ content.fields.subtitleEn }}
-        </p>
+      <div class="text-center mb-12 space-y-6">
+        <div class="space-y-2">
+          <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight leading-tight">
+            {{ content.fields.titleZh }}
+          </h1>
+          <p class="text-xl sm:text-2xl text-brand-green font-semibold">
+            {{ content.fields.subtitleZh }}
+          </p>
+        </div>
+        <div class="space-y-2">
+          <h2 class="text-xl sm:text-2xl md:text-3xl font-semibold tracking-[0.18em] uppercase text-slate-700">
+            {{ content.fields.titleEn }}
+          </h2>
+          <p class="text-base sm:text-lg tracking-[0.12em] uppercase text-slate-500">
+            {{ content.fields.subtitleEn }}
+          </p>
+        </div>
       </div>
 
-      <div class="section-card p-4 sm:p-6 md:p-8 mb-10">
+      <div class="section-card hero-panel p-4 sm:p-6 md:p-8 mb-10">
         <div class="grid gap-6 md:grid-cols-[320px_1fr]">
           <Dialog>
             <DialogTrigger as-child>
-              <button type="button" class="relative w-full text-left">
+              <button type="button" class="relative w-full text-left poster-card">
                 <img
                   :src="resolveAsset(content.fields.posterUrl)"
                   alt="實習計劃海報"
                   class="w-full rounded-xl shadow-md transition-transform duration-200 hover:scale-[1.02]"
                 />
-                <span class="absolute bottom-3 right-3 inline-flex items-center gap-2 rounded-full bg-white/90 px-3 py-1 text-sm font-medium text-slate-700 shadow">
+                <span class="absolute bottom-3 right-3 pill-accent shadow">
                   <ZoomIn class="h-4 w-4" />
                   放大查看
                 </span>
@@ -100,7 +104,7 @@ function getInfoIcon(index: number) {
           <div
             v-for="(item, index) in content.fields.infoCards"
             :key="item.titleZh"
-            class="section-card p-4 sm:p-5"
+            class="section-card card-outline p-4 sm:p-5"
           >
             <div class="flex items-start gap-3">
               <component :is="getInfoIcon(index)" class="h-5 w-5 text-brand-green mt-1" />
@@ -121,7 +125,7 @@ function getInfoIcon(index: number) {
         </div>
       </div>
 
-      <div class="section-card content-card p-5 sm:p-7 md:p-8">
+      <div class="section-card content-card card-muted p-5 sm:p-7 md:p-8">
         <div class="space-y-6">
           <div>
             <h3 class="text-lg font-semibold text-brand-blue">參加資格 / Eligibility</h3>

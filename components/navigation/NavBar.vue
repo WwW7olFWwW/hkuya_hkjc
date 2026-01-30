@@ -3,6 +3,7 @@ import { withBase } from "vitepress"
 import { Menu } from "lucide-vue-next"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import PageContainer from "@/components/layout/PageContainer.vue"
 
 interface NavItem {
   titleZh: string
@@ -32,51 +33,51 @@ function resolveAsset(path: string) {
 </script>
 
 <template>
-  <header class="fixed top-0 inset-x-0 z-50 gradient-bar backdrop-blur border-b border-white/10">
-    <div class="mx-auto flex items-center justify-between px-4 sm:px-6 lg:px-8 h-16 sm:h-20">
-      <a href="#project-intro" class="flex items-center gap-3">
-        <img :src="resolveAsset('/images/3x.png')" alt="HKUYA" class="h-10 sm:h-12 w-auto" />
-      </a>
+  <header class="site-header fixed top-0 inset-x-0 z-50 gradient-bar backdrop-blur border-b border-white/10">
+    <PageContainer>
+      <div class="flex items-center justify-between h-full">
+        <a href="#project-intro" class="flex items-center gap-3">
+          <img :src="resolveAsset('/images/3x.png')" alt="HKUYA" class="h-10 sm:h-12 w-auto" />
+        </a>
 
-      <nav class="hidden md:flex items-center gap-1">
-        <Button
-          v-for="item in navItems"
-          :key="item.href"
-          as-child
-          :variant="item.primary ? 'default' : 'ghost'"
-          class="text-white hover:text-white"
-        >
-          <a
-            :href="item.href"
-            class="flex flex-col items-center leading-tight px-2 py-2"
-            :class="item.primary ? 'bg-white/10 hover:bg-white/20' : ''"
+        <nav class="hidden md:flex items-center gap-1">
+          <Button
+            v-for="item in navItems"
+            :key="item.href"
+            as-child
+            variant="ghost"
           >
-            <span class="text-base font-medium">{{ item.titleZh }}</span>
-            <span class="text-xs opacity-80">{{ item.titleEn }}</span>
-          </a>
-        </Button>
-      </nav>
-
-      <Sheet>
-        <SheetTrigger as-child>
-          <Button variant="ghost" class="md:hidden text-white">
-            <Menu class="h-5 w-5" />
-          </Button>
-        </SheetTrigger>
-        <SheetContent side="right" class="bg-black/40 backdrop-blur text-white border-white/10">
-          <div class="mt-10 space-y-2">
             <a
-              v-for="item in navItems"
-              :key="item.href"
               :href="item.href"
-              class="flex flex-col items-center rounded-lg px-4 py-3 hover:bg-white/10"
+              :class="item.primary ? 'nav-link nav-link--primary' : 'nav-link'"
             >
               <span class="text-base font-medium">{{ item.titleZh }}</span>
               <span class="text-xs opacity-80">{{ item.titleEn }}</span>
             </a>
-          </div>
-        </SheetContent>
-      </Sheet>
-    </div>
+          </Button>
+        </nav>
+
+        <Sheet>
+          <SheetTrigger as-child>
+            <Button variant="ghost" class="md:hidden text-white">
+              <Menu class="h-5 w-5" />
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="right" class="bg-slate-900/80 backdrop-blur text-white border-white/10">
+            <div class="mt-10 space-y-2">
+              <a
+                v-for="item in navItems"
+                :key="item.href"
+                :href="item.href"
+                :class="item.primary ? 'mobile-cta' : 'mobile-link'"
+              >
+                <span class="text-base font-medium">{{ item.titleZh }}</span>
+                <span class="text-xs opacity-80">{{ item.titleEn }}</span>
+              </a>
+            </div>
+          </SheetContent>
+        </Sheet>
+      </div>
+    </PageContainer>
   </header>
 </template>

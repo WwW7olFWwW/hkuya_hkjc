@@ -10,3 +10,4 @@
 - Google Sheet 連結尚未接入，後續可新增 CSV 轉換流程。
 - Dev 反代：/hkjc 目前 Caddy 指向 [::1]:5173（VitePress dev 預設只綁 IPv6 loopback）。
 - Tailwind v4：`styles/global.css` 需加 `@config "../tailwind.config.ts"`（可搭配 `@source` 指定掃描範圍）；`tailwind.config.ts` 要合併 `defaultTheme` 才會產生 spacing/字級/rounded 等核心 utilities。
+- 所有 section 版型對齊 root；內容改由 Supabase `content.fields.*` 驅動，但保留 root 的結構與 CSS class（如 timeline/tabs/position）。

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { withBase } from "vitepress"
-import { Calendar, ZoomIn } from "lucide-vue-next"
+import { Calendar, MapPin, Users, User, ZoomIn } from "lucide-vue-next"
 import SectionBlock from "@/components/layout/SectionBlock.vue"
 import PageContainer from "@/components/layout/PageContainer.vue"
 import { Dialog, DialogTrigger, DialogScrollContent } from "@/components/ui/dialog"
@@ -32,6 +32,22 @@ defineProps<{
 
 function resolveAsset(path: string) {
   return withBase(path)
+}
+
+function getInfoIcon(index: number) {
+  if (index === 0) {
+    return Calendar
+  }
+  if (index === 1) {
+    return Users
+  }
+  if (index === 2) {
+    return MapPin
+  }
+  if (index === 3) {
+    return User
+  }
+  return Calendar
 }
 </script>
 
@@ -82,12 +98,12 @@ function resolveAsset(path: string) {
 
         <div class="grid gap-4 sm:gap-6 sm:grid-cols-2 mt-8">
           <div
-            v-for="item in content.fields.infoCards"
+            v-for="(item, index) in content.fields.infoCards"
             :key="item.titleZh"
             class="section-card p-4 sm:p-5"
           >
             <div class="flex items-start gap-3">
-              <component :is="Calendar" class="h-5 w-5 text-brand-green mt-1" />
+              <component :is="getInfoIcon(index)" class="h-5 w-5 text-brand-green mt-1" />
               <div class="flex-1">
                 <div class="flex items-center justify-between text-sm font-semibold">
                   <span>{{ item.titleZh }}</span>

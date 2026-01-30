@@ -24,7 +24,7 @@ defineProps<{
         </h2>
       </div>
 
-      <div class="section-card p-5 sm:p-6 md:p-8 max-w-3xl mx-auto bg-white">
+      <div class="section-card content-card p-5 sm:p-6 md:p-8 bg-white">
         <div class="space-y-6">
           <div class="rounded-2xl bg-slate-50 p-4 sm:p-5 flex gap-3">
             <Info class="h-6 w-6 text-brand-green mt-1" />

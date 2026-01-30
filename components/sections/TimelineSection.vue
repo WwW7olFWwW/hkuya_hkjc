@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { Calendar, CircleDollarSign, Hotel, ShieldCheck, Utensils, Bus, Info } from "lucide-vue-next"
+import { Check, Calendar, CircleDollarSign, Hotel, ShieldCheck, Utensils, Bus, Info } from "lucide-vue-next"
+import { computed } from "vue"
 import SectionBlock from "@/components/layout/SectionBlock.vue"
 import PageContainer from "@/components/layout/PageContainer.vue"
 import { Separator } from "@/components/ui/separator"
 
-defineProps<{
+const props = defineProps<{
   content: {
     fields: {
       titleZh: string
@@ -22,6 +23,18 @@ defineProps<{
     }
   }
 }>()
+
+const activeIndex = computed(function () {
+  const steps = props.content.fields.steps
+
+  for (let index = 0; index < steps.length; index += 1) {
+    if (steps[index].highlight) {
+      return index
+    }
+  }
+
+  return -1
+})
 
 function getDetailIcon(key: string) {
   if (key === 'money') {
@@ -41,6 +54,23 @@ function getDetailIcon(key: string) {
   }
   return Info
 }
+
+function getStepClass(index: number) {
+  if (activeIndex.value === -1) {
+    return 'timeline-step timeline-step--pending'
+  }
+  if (index < activeIndex.value) {
+    return 'timeline-step timeline-step--completed'
+  }
+  if (index === activeIndex.value) {
+    return 'timeline-step timeline-step--active'
+  }
+  return 'timeline-step timeline-step--pending'
+}
+
+function showCheck(index: number) {
+  return activeIndex.value !== -1 && index < activeIndex.value
+}
 </script>
 
 <template>
@@ -54,31 +84,27 @@ function getDetailIcon(key: string) {
 
       <div class="grid gap-6 lg:grid-cols-[2fr_1fr]">
         <div class="section-card p-5 sm:p-6 md:p-8">
-          <ul class="relative border-l border-slate-200 pl-6 space-y-6">
-            <li v-for="event in content.fields.steps" :key="event.date" class="relative">
-              <span
-                :class="[
-                  'absolute -left-[11px] top-1.5 flex h-5 w-5 items-center justify-center rounded-full border-2',
-                  event.highlight ? 'bg-brand-green border-brand-green' : 'bg-white border-slate-300'
-                ]"
-              >
-                <Calendar class="h-3 w-3 text-white" v-if="event.highlight" />
-              </span>
-              <div
-                :class="[
-                  'rounded-xl p-4',
-                  event.highlight ? 'bg-brand-light/70 border border-brand-border' : 'bg-transparent'
-                ]"
-              >
-                <h3 class="text-sm sm:text-base font-semibold text-slate-800 mb-2">
+          <div class="timeline-stepper">
+            <div
+              v-for="(event, index) in content.fields.steps"
+              :key="event.date"
+              :class="getStepClass(index)"
+            >
+              <div class="timeline-circle">
+                <Check v-if="showCheck(index)" class="h-4 w-4" />
+              </div>
+              <div class="timeline-line"></div>
+              <div class="timeline-content">
+                <span class="timeline-badge">
+                  <Calendar class="h-3 w-3 text-brand-green" />
                   {{ event.date }}
-                </h3>
-                <div class="space-y-1 text-sm text-slate-700">
+                </span>
+                <div class="timeline-event">
                   <p v-for="line in event.content" :key="line">{{ line }}</p>
                 </div>
               </div>
-            </li>
-          </ul>
+            </div>
+          </div>
         </div>
 
         <div class="section-card p-5 sm:p-6 md:p-8 bg-slate-50">

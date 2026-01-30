@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/vue"
+import { render, screen, fireEvent } from "@testing-library/vue"
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest"
 import ContentEditor from "../../components/admin/ContentEditor.vue"
 
@@ -25,7 +25,8 @@ vi.mock("@jsonforms/vue", function () {
     JsonForms: {
       name: "JsonForms",
       props: ["data", "schema", "uischema", "renderers"],
-      template: "<div data-testid=\"jsonforms-stub\"></div>"
+      emits: ["change"],
+      template: "<button data-testid=\"jsonforms-change\" @click=\"$emit('change', { data: { titleZh: '新標題' } })\">change</button>"
     }
   }
 })
@@ -59,10 +60,16 @@ afterEach(function () {
 })
 
 describe("ContentEditor JSON Forms", function () {
-  it("renders json forms for blocks", async function () {
+  it("saves updated data from JsonForms", async function () {
     render(ContentEditor)
 
-    expect(await screen.findByText("project_intro")).toBeTruthy()
-    expect(await screen.findByTestId("jsonforms-stub")).toBeTruthy()
+    await screen.findByText("project_intro")
+    const buttons = await screen.findAllByTestId("jsonforms-change")
+    await fireEvent.click(buttons[0])
+    await fireEvent.click(screen.getAllByText("儲存")[0])
+
+    expect(upsert).toHaveBeenCalled()
+    const args = upsert.mock.calls[0][0]
+    expect(args.fields.titleZh).toBe("新標題")
   })
 })

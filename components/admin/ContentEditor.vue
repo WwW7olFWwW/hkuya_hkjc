@@ -1,12 +1,41 @@
 <script setup lang="ts">
 import { ref } from "vue"
+import { JsonForms } from "@jsonforms/vue"
+import { vanillaRenderers } from "@jsonforms/vue-vanilla"
 import { supabase } from "@/lib/supabase/client"
 import { defaultContent } from "@/lib/content/defaultContent"
+import { getBlockSchema, getBlockUiSchema } from "@/lib/content/contentEditorSchemas"
 
 type ContentMap = Record<string, { fields: Record<string, unknown> }>
 
-const content = ref(defaultContent as ContentMap)
+type ChangeEvent = {
+  data: Record<string, unknown>
+}
+
+const renderers = Object.freeze(vanillaRenderers)
+const content = ref(cloneContent())
 const status = ref("")
+
+function cloneContent() {
+  return JSON.parse(JSON.stringify(defaultContent)) as ContentMap
+}
+
+function mergeContent(slug: string, fields: Record<string, unknown>) {
+  if (content.value[slug]) {
+    content.value[slug] = {
+      fields: {
+        ...content.value[slug].fields,
+        ...fields
+      }
+    }
+  } else {
+    content.value[slug] = { fields: fields }
+  }
+}
+
+function handleChange(slug: string, event: ChangeEvent) {
+  content.value[slug] = { fields: event.data }
+}
 
 async function loadContent() {
   status.value = ""
@@ -17,9 +46,10 @@ async function loadContent() {
   }
 
   const records = (response.data || []) as Array<{ slug: string; fields: Record<string, unknown> }>
+  content.value = cloneContent()
 
   for (const record of records) {
-    content.value[record.slug] = { fields: record.fields }
+    mergeContent(record.slug, record.fields)
   }
 }
 
@@ -55,17 +85,13 @@ loadContent()
         <h3 class="text-base font-semibold">{{ slug }}</h3>
         <button class="btn-primary" type="button" @click="saveBlock(String(slug))">儲存</button>
       </div>
-      <div class="space-y-3">
-        <div v-for="(value, key) in block.fields" :key="key">
-          <label class="block text-sm font-medium text-slate-700">{{ key }}</label>
-          <textarea
-            v-if="Array.isArray(value) || typeof value === 'string'"
-            v-model="block.fields[key]"
-            class="mt-1 w-full rounded-md border border-slate-200 px-3 py-2"
-            rows="3"
-          />
-        </div>
-      </div>
+      <JsonForms
+        :data="block.fields"
+        :schema="getBlockSchema(String(slug))"
+        :uischema="getBlockUiSchema(String(slug))"
+        :renderers="renderers"
+        @change="handleChange(String(slug), $event)"
+      />
     </div>
   </div>
 </template>

@@ -1,0 +1,205 @@
+import type { JsonSchema, UISchemaElement } from "@jsonforms/core"
+import { defaultContent } from "./defaultContent"
+
+type SchemaEntry = {
+  schema: JsonSchema
+  uischema: UISchemaElement
+}
+
+type BlockSchemas = Record<string, SchemaEntry>
+
+type GenericBlock = {
+  fields: Record<string, unknown>
+}
+
+function buildStringArraySchema() {
+  return {
+    type: "array",
+    items: { type: "string" }
+  }
+}
+
+function buildTimelineSchema(): SchemaEntry {
+  return {
+    schema: {
+      type: "object",
+      properties: {
+        titleZh: { type: "string" },
+        titleEn: { type: "string" },
+        steps: {
+          type: "array",
+          items: {
+            type: "object",
+            properties: {
+              date: { type: "string" },
+              content: buildStringArraySchema(),
+              highlight: { type: "boolean" }
+            }
+          }
+        },
+        notes: {
+          type: "array",
+          items: {
+            type: "object",
+            properties: {
+              icon: { type: "string" },
+              title: { type: "string" },
+              content: buildStringArraySchema()
+            }
+          }
+        }
+      }
+    },
+    uischema: {
+      type: "VerticalLayout",
+      elements: [
+        { type: "Control", scope: "#/properties/titleZh" },
+        { type: "Control", scope: "#/properties/titleEn" },
+        {
+          type: "Control",
+          scope: "#/properties/steps",
+          options: {
+            detail: {
+              type: "VerticalLayout",
+              elements: [
+                { type: "Control", scope: "#/properties/date" },
+                { type: "Control", scope: "#/properties/content" },
+                { type: "Control", scope: "#/properties/highlight" }
+              ]
+            }
+          }
+        },
+        {
+          type: "Control",
+          scope: "#/properties/notes",
+          options: {
+            detail: {
+              type: "VerticalLayout",
+              elements: [
+                { type: "Control", scope: "#/properties/icon" },
+                { type: "Control", scope: "#/properties/title" },
+                { type: "Control", scope: "#/properties/content" }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  }
+}
+
+function buildPositionsSchema(): SchemaEntry {
+  return {
+    schema: {
+      type: "object",
+      properties: {
+        titleZh: { type: "string" },
+        titleEn: { type: "string" },
+        groups: {
+          type: "array",
+          items: {
+            type: "object",
+            properties: {
+              location: { type: "string" },
+              description: { type: "string" },
+              positions: {
+                type: "array",
+                items: {
+                  type: "object",
+                  properties: {
+                    companyLines: buildStringArraySchema(),
+                    roleLines: buildStringArraySchema(),
+                    requirements: buildStringArraySchema(),
+                    duties: buildStringArraySchema()
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    uischema: {
+      type: "VerticalLayout",
+      elements: [
+        { type: "Control", scope: "#/properties/titleZh" },
+        { type: "Control", scope: "#/properties/titleEn" },
+        {
+          type: "Control",
+          scope: "#/properties/groups",
+          options: {
+            detail: {
+              type: "VerticalLayout",
+              elements: [
+                { type: "Control", scope: "#/properties/location" },
+                { type: "Control", scope: "#/properties/description" },
+                {
+                  type: "Control",
+                  scope: "#/properties/positions",
+                  options: {
+                    detail: {
+                      type: "VerticalLayout",
+                      elements: [
+                        { type: "Control", scope: "#/properties/companyLines" },
+                        { type: "Control", scope: "#/properties/roleLines" },
+                        { type: "Control", scope: "#/properties/requirements" },
+                        { type: "Control", scope: "#/properties/duties" }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  }
+}
+
+function buildGenericSchema(slug: string): SchemaEntry {
+  const block = defaultContent[slug as keyof typeof defaultContent] as GenericBlock | undefined
+  const fields = block ? block.fields : {}
+  const properties: Record<string, JsonSchema> = {}
+  const elements: UISchemaElement[] = []
+
+  for (const key of Object.keys(fields)) {
+    const value = fields[key]
+    if (Array.isArray(value)) {
+      properties[key] = buildStringArraySchema()
+    } else {
+      properties[key] = { type: "string" }
+    }
+    elements.push({ type: "Control", scope: "#/properties/" + key })
+  }
+
+  return {
+    schema: {
+      type: "object",
+      properties: properties
+    },
+    uischema: {
+      type: "VerticalLayout",
+      elements: elements
+    }
+  }
+}
+
+const blockSchemas: BlockSchemas = {
+  timeline: buildTimelineSchema(),
+  positions: buildPositionsSchema()
+}
+
+export function getBlockSchema(slug: string) {
+  if (blockSchemas[slug]) {
+    return blockSchemas[slug].schema
+  }
+  return buildGenericSchema(slug).schema
+}
+
+export function getBlockUiSchema(slug: string) {
+  if (blockSchemas[slug]) {
+    return blockSchemas[slug].uischema
+  }
+  return buildGenericSchema(slug).uischema
+}

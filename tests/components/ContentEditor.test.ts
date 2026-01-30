@@ -72,4 +72,32 @@ describe("ContentEditor JSON Forms", function () {
     const args = upsert.mock.calls[0][0]
     expect(args.fields.titleZh).toBe("新標題")
   })
+
+  it("merges default fields for timeline", async function () {
+    select.mockResolvedValue({
+      data: [
+        {
+          slug: "timeline",
+          fields: { titleZh: "更新標題" }
+        }
+      ]
+    })
+
+    render(ContentEditor)
+
+    const heading = await screen.findByText("timeline")
+    const card = heading.closest(".section-card")
+    expect(card).toBeTruthy()
+
+    const saveButton = card ? card.querySelector("button") : null
+    expect(saveButton).toBeTruthy()
+    if (saveButton) {
+      await fireEvent.click(saveButton)
+    }
+
+    const args = upsert.mock.calls[0][0]
+    expect(args.fields.titleZh).toBe("更新標題")
+    expect(Array.isArray(args.fields.steps)).toBe(true)
+    expect(Array.isArray(args.fields.notes)).toBe(true)
+  })
 })

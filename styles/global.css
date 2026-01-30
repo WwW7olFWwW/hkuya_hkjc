@@ -1,3 +1,4 @@
+@import "@jsonforms/vue-vanilla/vanilla.css";
 @config "../tailwind.config.ts";
 @source "../index.md";
 @source "../.vitepress/**/*.{js,ts,vue}";

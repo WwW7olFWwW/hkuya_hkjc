@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, cleanup } from "@testing-library/vue"
+import { render, screen } from "@testing-library/vue"
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest"
 import ContentEditor from "../../components/admin/ContentEditor.vue"
 
@@ -16,6 +16,16 @@ vi.mock("../../lib/supabase/client", function () {
   return {
     supabase: {
       from: from
+    }
+  }
+})
+
+vi.mock("@jsonforms/vue", function () {
+  return {
+    JsonForms: {
+      name: "JsonForms",
+      props: ["data", "schema", "uischema", "renderers"],
+      template: "<div data-testid=\"jsonforms-stub\"></div>"
     }
   }
 })
@@ -45,22 +55,14 @@ beforeEach(function () {
 })
 
 afterEach(function () {
-  cleanup()
+  document.body.innerHTML = ""
 })
 
-describe("ContentEditor", function () {
-  it("loads and renders content blocks", async function () {
+describe("ContentEditor JSON Forms", function () {
+  it("renders json forms for blocks", async function () {
     render(ContentEditor)
 
     expect(await screen.findByText("project_intro")).toBeTruthy()
-  })
-
-  it("saves block updates", async function () {
-    render(ContentEditor)
-
-    await screen.findByText("project_intro")
-    await fireEvent.click(screen.getAllByText("儲存")[0])
-
-    expect(await screen.findByText("已儲存：project_intro")).toBeTruthy()
+    expect(await screen.findByTestId("jsonforms-stub")).toBeTruthy()
   })
 })

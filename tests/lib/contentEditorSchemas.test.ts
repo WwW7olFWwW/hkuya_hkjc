@@ -30,6 +30,12 @@ describe("contentEditorSchemas", function () {
     expect(schema.properties.tel.type).toBe("string")
   })
 
+  it("builds project_intro schema with infoCards array", function () {
+    const schema = getBlockSchema("project_intro")
+    expect(schema.properties.infoCards.type).toBe("array")
+    expect(schema.properties.infoCards.items.type).toBe("object")
+  })
+
   it("builds timeline ui schema with array detail", function () {
     const uiSchema = getBlockUiSchema("timeline")
     expect(uiSchema.type).toBe("VerticalLayout")

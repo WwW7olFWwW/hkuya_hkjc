@@ -19,6 +19,71 @@ function buildStringArraySchema() {
   }
 }
 
+function buildProjectIntroSchema(): SchemaEntry {
+  return {
+    schema: {
+      type: "object",
+      properties: {
+        titleZh: { type: "string" },
+        subtitleZh: { type: "string" },
+        titleEn: { type: "string" },
+        subtitleEn: { type: "string" },
+        descriptionZh: { type: "string" },
+        descriptionEn: { type: "string" },
+        posterUrl: { type: "string" },
+        infoCards: {
+          type: "array",
+          items: {
+            type: "object",
+            properties: {
+              titleZh: { type: "string" },
+              titleEn: { type: "string" },
+              contentZh: { type: "string" },
+              contentEn: { type: "string" }
+            }
+          }
+        },
+        eligibilityZh: buildStringArraySchema(),
+        eligibilityEn: buildStringArraySchema(),
+        feeZh: buildStringArraySchema(),
+        feeEn: buildStringArraySchema()
+      }
+    },
+    uischema: {
+      type: "VerticalLayout",
+      elements: [
+        { type: "Control", scope: "#/properties/titleZh" },
+        { type: "Control", scope: "#/properties/subtitleZh" },
+        { type: "Control", scope: "#/properties/titleEn" },
+        { type: "Control", scope: "#/properties/subtitleEn" },
+        { type: "Control", scope: "#/properties/descriptionZh" },
+        { type: "Control", scope: "#/properties/descriptionEn" },
+        { type: "Control", scope: "#/properties/posterUrl" },
+        {
+          type: "Control",
+          scope: "#/properties/infoCards",
+          options: {
+            childLabelProp: "titleZh",
+            detail: {
+              type: "VerticalLayout",
+              elements: [
+                { type: "Control", scope: "#/properties/titleZh" },
+                { type: "Control", scope: "#/properties/titleEn" },
+                { type: "Control", scope: "#/properties/contentZh" },
+                { type: "Control", scope: "#/properties/contentEn" }
+              ]
+            }
+          }
+        },
+        { type: "Control", scope: "#/properties/eligibilityZh" },
+        { type: "Control", scope: "#/properties/eligibilityEn" },
+        { type: "Control", scope: "#/properties/feeZh" },
+        { type: "Control", scope: "#/properties/feeEn" }
+      ]
+    }
+  }
+}
+
 function buildTimelineSchema(): SchemaEntry {
   return {
     schema: {
@@ -260,6 +325,7 @@ function buildGenericSchema(slug: string): SchemaEntry {
 }
 
 const blockSchemas: BlockSchemas = {
+  project_intro: buildProjectIntroSchema(),
   timeline: buildTimelineSchema(),
   positions: buildPositionsSchema(),
   about_us: buildAboutUsSchema(),

@@ -33,7 +33,18 @@ function mergeContent(slug: string, fields: Record<string, unknown>) {
   }
 }
 
+function isSameData(current: Record<string, unknown>, next: Record<string, unknown>) {
+  if (current === next) {
+    return true
+  }
+  return JSON.stringify(current) === JSON.stringify(next)
+}
+
 function handleChange(slug: string, event: ChangeEvent) {
+  const current = content.value[slug] ? content.value[slug].fields : {}
+  if (isSameData(current, event.data)) {
+    return
+  }
   content.value[slug] = { fields: event.data }
 }
 

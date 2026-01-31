@@ -7,7 +7,10 @@
 - 內容改為 Supabase 驅動：`lib/content/defaultContent.ts` 為 fallback，`content_blocks` 會在前端 runtime 載入並透過 Realtime 更新。
 - 環境變數：`VITE_SUPABASE_URL`、`VITE_SUPABASE_ANON_KEY`（參考 `.env.example`）。
 - 管理頁：`admin.md` → `/admin.html`，使用共用帳號登入後可編輯各區塊內容。
-- 後台表單改用 JSON Forms（@jsonforms/core、@jsonforms/vue、@jsonforms/vue-vanilla），支援巢狀陣列欄位新增/刪除（timeline/positions）。
+- 後台表單改為 Form.io（@formio/js），Admin 內含 Content Editor + Schema Builder；表單定義存 Supabase `formio_forms`，歷史存 `formio_forms_history`，每個 slug 保留最近 7 版，回滾有二次確認。
+- Content Editor 仍寫回 `content_blocks`；多行輸入依 `defaultContent` 模板把字串拆成陣列（例如 duties/eligibility）。
+- Form.io CSS 已由 `styles/global.css` 引入 `@formio/js/dist/formio.full.min.css`。
+- 匯出 schema：`npm run formio:export -- --slug <slug>`，輸出到 `lib/forms/formio/{slug}.json`，並在匯出前寫入 history（即使匯出失敗，history 仍保留）。
 - About Us/Contact 已改為後台可編輯（organizations/email/tel）。
 - Google Sheet 連結尚未接入，後續可新增 CSV 轉換流程。
 - Dev 反代：/hkjc 目前 Caddy 指向 [::1]:5173（VitePress dev 預設只綁 IPv6 loopback）。

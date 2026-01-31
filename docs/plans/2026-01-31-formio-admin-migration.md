@@ -2,11 +2,11 @@
 
 > **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
 
-**Goal:** Replace JSON Forms in the admin with formio.js v5.2.2 (including Form Builder), store form schemas in Supabase with per-slug 7-version history, support rollback with confirmation, and export schemas to `lib/forms/formio/{slug}.json` while keeping content submission mapped to existing `content_blocks`.
+**Goal:** Replace JSON Forms in the admin with @formio/js v5.2.2 (including Form Builder), store form schemas in Supabase with per-slug 7-version history, support rollback with a double-confirm dialog, and export schemas to `lib/forms/formio/{slug}.json` while keeping content submission mapped to existing `content_blocks`.
 
-**Architecture:** Admin UI will have two views: Builder (edit schema) and Editor (render schema + map submission). Schemas live in `formio_forms` with append-only `formio_forms_history` for the latest 7 per slug, versioned by timestamp. Export writes repo JSON and also inserts a history row.
+**Architecture:** Admin UI will have two views: Builder (edit schema) and Editor (render schema + map submission). Schemas live in `formio_forms` with append-only `formio_forms_history` for the latest 7 per slug, versioned by timestamp. Export writes repo JSON and also inserts a history row; history is written even if repo export fails.
 
-**Tech Stack:** Vue 3 + VitePress, formio.js v5.2.2, Supabase JS, Tailwind, Vitest.
+**Tech Stack:** Vue 3 + VitePress, @formio/js v5.2.2, Supabase JS, Tailwind, Vitest.
 
 ### Task 1: Add Supabase schema tables and history policy
 
@@ -75,8 +75,8 @@ git commit -m "docs: add formio schema sql"
 import { describe, it, expect } from "vitest";
 
 describe("formio dependency", function () {
-  it("loads formiojs", function () {
-    const module = require("formiojs");
+  it("loads @formio/js", function () {
+    const module = require("@formio/js");
     expect(module).toBeTruthy();
   });
 });
@@ -89,8 +89,8 @@ Expected: FAIL with module not found.
 
 **Step 3: Write minimal implementation**
 
-- Add `formiojs@5.2.2` to dependencies.
-- Import Formio CSS into `styles/global.css` (or a dedicated admin CSS).
+- Add `@formio/js@5.2.2` to dependencies.
+- Import Formio CSS into `styles/global.css`.
 
 **Step 4: Run test to verify it passes**
 
@@ -101,7 +101,7 @@ Expected: PASS.
 
 ```bash
 git add package.json package-lock.json styles/global.css tests/formio/formioDependency.test.ts
-git commit -m "chore: add formiojs dependency"
+git commit -m "chore: add formio js dependency"
 ```
 
 ### Task 3: Build schema store (Supabase) with per-slug history trim
@@ -161,7 +161,7 @@ Expected: PASS.
 
 ```bash
 git add lib/formio/schemaHistory.ts tests/formio/schemaHistory.test.ts
- git commit -m "feat: add formio history trim helper"
+ git commit -m "feat: add formio schema history helper"
 ```
 
 ### Task 4: Builder UI (schema edit, save, rollback with confirm)
@@ -170,20 +170,20 @@ git add lib/formio/schemaHistory.ts tests/formio/schemaHistory.test.ts
 - Create: `components/admin/FormioBuilder.vue`
 - Modify: `components/admin/AdminPage.vue`
 - Modify: `components/admin/ContentEditor.vue` (replace with Formio editor entry point)
-- Create: `lib/formio/schemaStore.ts`
+- Modify: `lib/formio/schemaStore.ts`
 
 **Step 1: Write the failing test**
 
 ```ts
 // tests/components/FormioBuilder.test.ts
+import { render, screen } from "@testing-library/vue";
 import { describe, it, expect } from "vitest";
-import { mount } from "@vue/test-utils";
 import FormioBuilder from "../../components/admin/FormioBuilder.vue";
 
 describe("FormioBuilder", function () {
-  it("renders builder shell", function () {
-    const wrapper = mount(FormioBuilder);
-    expect(wrapper.text()).toContain("Schema Builder");
+  it("renders builder shell", async function () {
+    render(FormioBuilder, { props: { slug: "project_intro" } });
+    expect(await screen.findByText("Schema Builder")).toBeTruthy();
   });
 });
 ```
@@ -199,7 +199,7 @@ Expected: FAIL with component not found.
   - Loads schema by slug from Supabase.
   - Saves schema with version = `String(Date.now())`.
   - Writes history entry and trims to latest 7 for the slug.
-  - Adds rollback list (latest 7) and confirmation dialog before overwrite.
+  - Adds rollback list (latest 7) and double-confirm dialog before overwrite.
 
 **Step 4: Run test to verify it passes**
 
@@ -219,6 +219,7 @@ git add components/admin/FormioBuilder.vue components/admin/AdminPage.vue compon
 - Create: `components/admin/FormioEditor.vue`
 - Create: `lib/formio/mapSubmission.ts`
 - Test: `tests/formio/mapSubmission.test.ts`
+- Test: `tests/components/FormioEditor.test.ts`
 
 **Step 1: Write the failing test**
 
@@ -227,8 +228,8 @@ import { describe, it, expect } from "vitest";
 import { mapSubmissionToContent } from "../../lib/formio/mapSubmission";
 
 describe("mapSubmissionToContent", function () {
-  it("maps multiline textarea to string array", function () {
-    const result = mapSubmissionToContent({ duties: "a\n\n b" });
+  it("converts multiline string to array when template is string array", function () {
+    const result = mapSubmissionToContent({ duties: "a\n\n b" }, { duties: [""] });
     expect(result.duties).toEqual(["a", "b"]);
   });
 });
@@ -242,25 +243,12 @@ Expected: FAIL with function not found.
 **Step 3: Write minimal implementation**
 
 ```ts
-export function mapSubmissionToContent(data: Record<string, unknown>) {
-  const output: Record<string, unknown> = {};
-  for (const key of Object.keys(data)) {
-    const value = data[key];
-    if (typeof value === "string" && value.indexOf("\n") !== -1) {
-      const lines = value.split(/\r?\n/);
-      const cleaned: string[] = [];
-      for (const line of lines) {
-        const trimmed = line.trim();
-        if (trimmed) {
-          cleaned.push(trimmed);
-        }
-      }
-      output[key] = cleaned;
-    } else {
-      output[key] = value;
-    }
-  }
-  return output;
+export function mapSubmissionToContent(
+  data: Record<string, unknown>,
+  template?: Record<string, unknown>
+) {
+  // Use template (from defaultContent) to decide which fields should split into arrays.
+  // Multiline strings only become arrays when the template field is a string[].
 }
 ```
 
@@ -272,8 +260,8 @@ Expected: PASS.
 **Step 5: Commit**
 
 ```bash
-git add components/admin/FormioEditor.vue lib/formio/mapSubmission.ts tests/formio/mapSubmission.test.ts
- git commit -m "feat: add formio submission mapper"
+git add components/admin/FormioEditor.vue lib/formio/mapSubmission.ts tests/formio/mapSubmission.test.ts tests/components/FormioEditor.test.ts
+ git commit -m "feat: add formio editor mapping"
 ```
 
 ### Task 6: Export schema to repo + history backup
@@ -317,9 +305,13 @@ Expected: PASS.
 **Step 5: Commit**
 
 ```bash
-git add scripts/export-formio-schema.ts package.json tests/formio/exportSchema.test.ts
- git commit -m "feat: add formio schema export script"
+git add scripts/export-formio-schema.ts package.json package-lock.json tests/formio/exportSchema.test.ts
+git commit -m "feat: add formio schema export script"
 ```
+
+**Notes:**
+- Export flow must write a history record first, then attempt repo export.
+- Repo export failure must not delete or skip the history entry.
 
 ### Task 7: Docs + verification
 
@@ -346,7 +338,7 @@ Expected: Builder missing.
 **Step 4: Run test to verify it passes**
 
 Run: `npm run docs:dev` then open `/admin.html`
-Expected: Builder, rollback, export, and editor all visible and functional.
+Expected: Builder、rollback、editor 可操作；匯出透過 CLI `npm run formio:export -- --slug <slug>` 可產生 `lib/forms/formio/{slug}.json`。
 
 **Step 5: Commit**
 

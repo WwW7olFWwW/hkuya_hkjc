@@ -11,7 +11,7 @@ import {
 type BuilderInstance = {
   schema?: Record<string, unknown>
   form?: Record<string, unknown>
-  destroy?: () => void
+  destroy?: { (): void }
 }
 
 const props = defineProps<{

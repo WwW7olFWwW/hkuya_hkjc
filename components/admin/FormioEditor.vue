@@ -7,7 +7,7 @@ import { mapSubmissionToContent } from "@/lib/formio/mapSubmission"
 
 type FormInstance = {
   submission?: unknown
-  destroy?: () => void
+  destroy?: { (): void }
 }
 
 type ContentRecord = {

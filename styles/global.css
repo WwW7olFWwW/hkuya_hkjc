@@ -1,4 +1,5 @@
 @import "@jsonforms/vue-vanilla/vanilla.css";
+@import "@formio/js/dist/formio.full.min.css";
 @config "../tailwind.config.ts";
 @source "../index.md";
 @source "../.vitepress/**/*.{js,ts,vue}";

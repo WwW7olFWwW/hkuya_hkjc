@@ -1,86 +1,20 @@
 <script setup lang="ts">
 import { ref } from "vue"
-import { JsonForms } from "@jsonforms/vue"
-import { vanillaRenderers } from "@jsonforms/vue-vanilla"
-import { supabase } from "@/lib/supabase/client"
 import { defaultContent } from "@/lib/content/defaultContent"
-import { getBlockSchema, getBlockUiSchema } from "@/lib/content/contentEditorSchemas"
+import FormioBuilder from "@/components/admin/FormioBuilder.vue"
+import FormioEditor from "@/components/admin/FormioEditor.vue"
 
-type ContentMap = Record<string, { fields: Record<string, unknown> }>
+const slugs = Object.keys(defaultContent)
+const activeSlug = ref(slugs.length > 0 ? slugs[0] : "")
+const viewMode = ref<"editor" | "builder">("editor")
 
-type ChangeEvent = {
-  data: Record<string, unknown>
+function setViewMode(mode: "editor" | "builder") {
+  viewMode.value = mode
 }
 
-const renderers = Object.freeze(vanillaRenderers)
-const content = ref(cloneContent())
-const status = ref("")
-
-function cloneContent() {
-  return JSON.parse(JSON.stringify(defaultContent)) as ContentMap
+function isActive(mode: "editor" | "builder") {
+  return viewMode.value === mode
 }
-
-function mergeContent(slug: string, fields: Record<string, unknown>) {
-  if (content.value[slug]) {
-    content.value[slug] = {
-      fields: {
-        ...content.value[slug].fields,
-        ...fields
-      }
-    }
-  } else {
-    content.value[slug] = { fields: fields }
-  }
-}
-
-function isSameData(current: Record<string, unknown>, next: Record<string, unknown>) {
-  if (current === next) {
-    return true
-  }
-  return JSON.stringify(current) === JSON.stringify(next)
-}
-
-function handleChange(slug: string, event: ChangeEvent) {
-  const current = content.value[slug] ? content.value[slug].fields : {}
-  if (isSameData(current, event.data)) {
-    return
-  }
-  content.value[slug] = { fields: event.data }
-}
-
-async function loadContent() {
-  status.value = ""
-  const response = await supabase.from("content_blocks").select("slug, fields")
-  if (response.error) {
-    status.value = response.error.message
-    return
-  }
-
-  const records = (response.data || []) as Array<{ slug: string; fields: Record<string, unknown> }>
-  content.value = cloneContent()
-
-  for (const record of records) {
-    mergeContent(record.slug, record.fields)
-  }
-}
-
-async function saveBlock(slug: string) {
-  status.value = ""
-  const payload = content.value[slug]
-
-  const response = await supabase
-    .from("content_blocks")
-    .upsert({ slug: slug, fields: payload.fields }, { onConflict: "slug" })
-
-  if (response.error) {
-    status.value = response.error.message
-    return
-  }
-
-  status.value = "已儲存：" + slug
-}
-
-loadContent()
 </script>
 
 <template>
@@ -88,21 +22,50 @@ loadContent()
     <div class="space-y-2">
       <h2 class="text-lg font-semibold">內容設定</h2>
       <p class="text-sm text-slate-500">修改後將立即更新前端。</p>
-      <p v-if="status" class="text-sm text-slate-600">{{ status }}</p>
     </div>
 
-    <div v-for="(block, slug) in content" :key="slug" class="section-card p-5 space-y-4">
-      <div class="flex items-center justify-between">
-        <h3 class="text-base font-semibold">{{ slug }}</h3>
-        <button class="btn-primary" type="button" @click="saveBlock(String(slug))">儲存</button>
+    <div class="section-card p-4">
+      <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
+          <label for="content-slug" class="text-sm font-medium text-slate-700">內容區塊</label>
+          <select
+            id="content-slug"
+            v-model="activeSlug"
+            class="rounded-md border border-slate-200 px-3 py-2 text-sm"
+          >
+            <option v-for="slug in slugs" :key="slug" :value="slug">{{ slug }}</option>
+          </select>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            class="rounded-md px-3 py-2 text-sm font-medium transition"
+            :class="
+              isActive('editor')
+                ? 'bg-slate-900 text-white'
+                : 'border border-slate-200 text-slate-600 hover:bg-slate-50'
+            "
+            @click="setViewMode('editor')"
+          >
+            Content Editor
+          </button>
+          <button
+            type="button"
+            class="rounded-md px-3 py-2 text-sm font-medium transition"
+            :class="
+              isActive('builder')
+                ? 'bg-slate-900 text-white'
+                : 'border border-slate-200 text-slate-600 hover:bg-slate-50'
+            "
+            @click="setViewMode('builder')"
+          >
+            Schema Builder
+          </button>
+        </div>
       </div>
-      <JsonForms
-        :data="block.fields"
-        :schema="getBlockSchema(String(slug))"
-        :uischema="getBlockUiSchema(String(slug))"
-        :renderers="renderers"
-        @change="handleChange(String(slug), $event)"
-      />
     </div>
+
+    <FormioEditor v-if="viewMode === 'editor'" :slug="activeSlug" />
+    <FormioBuilder v-else :slug="activeSlug" />
   </div>
 </template>

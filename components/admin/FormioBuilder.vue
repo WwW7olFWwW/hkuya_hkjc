@@ -7,6 +7,7 @@ import {
   saveFormSchema,
   type FormioHistoryRecord
 } from "@/lib/formio/schemaStore"
+import { buildFormioSchemaFromDefault } from "@/lib/formio/schemaGenerator"
 
 type BuilderInstance = {
   schema?: Record<string, unknown>
@@ -23,6 +24,7 @@ const builderInstance = ref<BuilderInstance | null>(null)
 const history = ref<FormioHistoryRecord[]>([])
 const status = ref("")
 const isLoading = ref(false)
+const hasSavedSchema = ref(false)
 const currentSchema = ref<Record<string, unknown>>(buildDefaultSchema(props.slug))
 
 function buildDefaultSchema(slug: string) {
@@ -87,6 +89,7 @@ async function loadSchema() {
 
   try {
     const record = await fetchFormSchema(props.slug)
+    hasSavedSchema.value = !!record
     const schema = record && record.schema ? record.schema : buildDefaultSchema(props.slug)
     currentSchema.value = schema
     await mountBuilder(schema)
@@ -123,6 +126,22 @@ async function handleSave() {
   } catch (error) {
     status.value = formatErrorMessage(error)
   }
+}
+
+async function handleGenerate() {
+  if (!props.slug) {
+    return
+  }
+  if (typeof window !== "undefined" && hasSavedSchema.value) {
+    if (!window.confirm("已有 schema，重新產生將覆蓋目前 Builder 狀態，是否繼續？")) {
+      return
+    }
+  }
+
+  const schema = buildFormioSchemaFromDefault(props.slug)
+  currentSchema.value = schema
+  await mountBuilder(schema)
+  status.value = "已產生初始 schema，請儲存。"
 }
 
 async function handleRollback(entry: FormioHistoryRecord) {
@@ -173,6 +192,14 @@ onBeforeUnmount(function () {
         <p class="text-sm text-slate-500">管理表單結構並儲存版本。</p>
       </div>
       <div class="flex items-center gap-2">
+        <button
+          class="rounded-md border border-slate-200 px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50"
+          type="button"
+          @click="handleGenerate"
+          :disabled="isLoading"
+        >
+          產生初始 schema
+        </button>
         <button class="btn-primary" type="button" @click="handleSave" :disabled="isLoading">
           儲存 schema
         </button>

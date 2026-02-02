@@ -8,6 +8,7 @@
 - 環境變數：`VITE_SUPABASE_URL`、`VITE_SUPABASE_ANON_KEY`（參考 `.env.example`）。
 - 管理頁：`admin.md` → `/admin.html`，使用共用帳號登入後可編輯各區塊內容。
 - 後台表單改為 Form.io（@formio/js），Admin 內含 Content Editor + Schema Builder；表單定義存 Supabase `formio_forms`，歷史存 `formio_forms_history`，每個 slug 保留最近 7 版，回滾有二次確認。
+- Schema Builder 支援「產生初始 schema」：依 `defaultContent` 結構建立 editgrid/textarea 等欄位，產生後可儲存。
 - Content Editor 仍寫回 `content_blocks`；多行輸入依 `defaultContent` 模板把字串拆成陣列（例如 duties/eligibility）。
 - Form.io CSS 已由 `styles/global.css` 引入 `@formio/js/dist/formio.full.min.css`。
 - 匯出 schema：`npm run formio:export -- --slug <slug>`，輸出到 `lib/forms/formio/{slug}.json`，並在匯出前寫入 history（即使匯出失敗，history 仍保留）。

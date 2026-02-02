@@ -1,12 +1,16 @@
 <script setup lang="ts">
 import { ref } from "vue"
 import { defaultContent } from "@/lib/content/defaultContent"
+import { saveFormSchema } from "@/lib/formio/schemaStore"
+import { buildAllFormioSchemasFromDefault } from "@/lib/formio/schemaGenerator"
 import FormioBuilder from "@/components/admin/FormioBuilder.vue"
 import FormioEditor from "@/components/admin/FormioEditor.vue"
 
 const slugs = Object.keys(defaultContent)
 const activeSlug = ref(slugs.length > 0 ? slugs[0] : "")
 const viewMode = ref<"editor" | "builder">("editor")
+const batchStatus = ref("")
+const isBatchSaving = ref(false)
 
 function setViewMode(mode: "editor" | "builder") {
   viewMode.value = mode
@@ -14,6 +18,59 @@ function setViewMode(mode: "editor" | "builder") {
 
 function isActive(mode: "editor" | "builder") {
   return viewMode.value === mode
+}
+
+function formatErrorMessage(error: unknown) {
+  if (error instanceof Error) {
+    return error.message
+  }
+  if (typeof error === "string") {
+    return error
+  }
+  return "未知錯誤"
+}
+
+async function handleGenerateAllSchemas() {
+  if (isBatchSaving.value) {
+    return
+  }
+
+  if (typeof window !== "undefined") {
+    const confirmed = window.confirm("將為所有區塊產生並儲存 schema（可能覆蓋現有版本），是否繼續？")
+    if (!confirmed) {
+      return
+    }
+  }
+
+  const entries = buildAllFormioSchemasFromDefault()
+  if (entries.length === 0) {
+    batchStatus.value = "沒有可產生的 schema。"
+    return
+  }
+
+  isBatchSaving.value = true
+  batchStatus.value = ""
+  let savedCount = 0
+  const errors: string[] = []
+
+  for (const entry of entries) {
+    const version = String(Date.now())
+    try {
+      await saveFormSchema(entry.slug, entry.schema as Record<string, unknown>, version)
+      savedCount += 1
+      batchStatus.value = "已儲存 " + savedCount + " / " + entries.length
+    } catch (error) {
+      errors.push(entry.slug + ": " + formatErrorMessage(error))
+    }
+  }
+
+  if (errors.length > 0) {
+    batchStatus.value = "完成，但有錯誤：" + errors.join("; ")
+  } else {
+    batchStatus.value = "已完成，全部 " + entries.length + " 個 schema"
+  }
+
+  isBatchSaving.value = false
 }
 </script>
 
@@ -37,6 +94,14 @@ function isActive(mode: "editor" | "builder") {
           </select>
         </div>
         <div class="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            class="rounded-md border border-slate-200 px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50"
+            :disabled="isBatchSaving"
+            @click="handleGenerateAllSchemas"
+          >
+            批次產生並儲存
+          </button>
           <button
             type="button"
             class="rounded-md px-3 py-2 text-sm font-medium transition"
@@ -63,6 +128,7 @@ function isActive(mode: "editor" | "builder") {
           </button>
         </div>
       </div>
+      <p v-if="batchStatus" class="mt-3 text-sm text-slate-600">{{ batchStatus }}</p>
     </div>
 
     <FormioEditor v-if="viewMode === 'editor'" :slug="activeSlug" />

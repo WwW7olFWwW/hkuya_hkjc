@@ -152,3 +152,17 @@ export function buildFormioSchemaFromDefault(slug: string): FormioSchema {
     components: buildComponentsFromObject(fields)
   }
 }
+
+export function buildAllFormioSchemasFromDefault() {
+  const keys = Object.keys(defaultContent)
+  const results: Array<{ slug: string; schema: FormioSchema }> = []
+
+  for (const key of keys) {
+    results.push({
+      slug: key,
+      schema: buildFormioSchemaFromDefault(key)
+    })
+  }
+
+  return results
+}

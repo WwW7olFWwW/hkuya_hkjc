@@ -31,7 +31,7 @@ function isPrimaryLink(link: LinkItem) {
 </script>
 
 <template>
-  <footer class="gradient-bar text-slate-200">
+  <footer class="gradient-bar glass-bar text-slate-200">
     <PageContainer>
       <div class="py-10">
         <div class="grid gap-6 md:grid-cols-2">

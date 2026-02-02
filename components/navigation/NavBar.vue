@@ -1,9 +1,10 @@
 <script setup lang="ts">
+import { computed } from "vue"
 import { withBase } from "vitepress"
 import { Menu } from "lucide-vue-next"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import PageContainer from "@/components/layout/PageContainer.vue"
+import { useContentStore } from "@/lib/content/store"
 
 interface NavItem {
   titleZh: string
@@ -27,36 +28,65 @@ const navItems: NavItem[] = [
   { titleZh: '聯絡我們', titleEn: 'Contact Us', href: '#contactus' }
 ]
 
+const store = useContentStore()
+
 function resolveAsset(path: string) {
   return withBase(path)
 }
+
+function normalizeLogoHeight(value: unknown) {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return value
+  }
+  if (typeof value === "string" && value.trim() !== "") {
+    const parsed = Number(value)
+    if (Number.isFinite(parsed)) {
+      return parsed
+    }
+  }
+  return 48
+}
+
+const logoHeight = computed(function () {
+  const settings = store.contentState.value.site_settings
+  const fields = settings ? settings.fields : null
+  const value = fields ? fields.logoHeight : undefined
+  return normalizeLogoHeight(value)
+})
+
+const logoStyle = computed(function () {
+  return {
+    height: logoHeight.value + "px",
+    maxHeight: "var(--site-header-height)"
+  }
+})
 </script>
 
 <template>
-  <header class="site-header fixed top-0 inset-x-0 z-50 gradient-bar backdrop-blur border-b border-white/10">
-    <PageContainer>
-      <div class="flex items-center justify-between h-full">
-        <a href="#project-intro" class="flex items-center gap-3">
-          <img :src="resolveAsset('/images/3x.png')" alt="HKUYA" class="h-10 sm:h-12 w-auto" />
-        </a>
+  <header class="site-header fixed top-0 inset-x-0 z-50 gradient-bar glass-bar border-b border-white/10">
+    <div class="mx-auto flex items-center h-full w-full px-4 sm:px-6 lg:px-8">
+      <a href="#project-intro" class="flex items-center gap-3">
+        <img :src="resolveAsset('/images/3x.png')" alt="HKUYA" class="w-auto" :style="logoStyle" />
+      </a>
 
-        <nav class="hidden md:flex items-center gap-1">
-          <Button
-            v-for="item in navItems"
-            :key="item.href"
-            as-child
-            variant="ghost"
+      <nav class="nav-desktop">
+        <Button
+          v-for="item in navItems"
+          :key="item.href"
+          as-child
+          variant="ghost"
+        >
+          <a
+            :href="item.href"
+            :class="item.primary ? 'nav-link nav-link--primary' : 'nav-link'"
           >
-            <a
-              :href="item.href"
-              :class="item.primary ? 'nav-link nav-link--primary' : 'nav-link'"
-            >
-              <span class="text-base font-medium">{{ item.titleZh }}</span>
-              <span class="text-xs opacity-80">{{ item.titleEn }}</span>
-            </a>
-          </Button>
-        </nav>
+            <span class="text-base font-medium">{{ item.titleZh }}</span>
+            <span class="text-xs opacity-80">{{ item.titleEn }}</span>
+          </a>
+        </Button>
+      </nav>
 
+      <div class="nav-mobile">
         <Sheet>
           <SheetTrigger as-child>
             <Button variant="ghost" class="md:hidden text-white">
@@ -78,6 +108,6 @@ function resolveAsset(path: string) {
           </SheetContent>
         </Sheet>
       </div>
-    </PageContainer>
+    </div>
   </header>
 </template>

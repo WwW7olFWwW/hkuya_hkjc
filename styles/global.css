@@ -133,6 +133,19 @@ img {
   background-image: linear-gradient(120deg, #0b2f8a 0%, #00a36c 55%, #ff8a3d 100%);
 }
 
+.glass-bar {
+  background-color: rgba(11, 47, 138, 0.62);
+  background-image: linear-gradient(
+    120deg,
+    rgba(11, 47, 138, 0.78) 0%,
+    rgba(0, 163, 108, 0.65) 55%,
+    rgba(255, 138, 61, 0.58) 100%
+  );
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 12px 30px rgba(3, 33, 105, 0.25);
+}
+
 .nav-link {
   display: flex;
   flex-direction: column;
@@ -161,6 +174,32 @@ img {
 
 .nav-link--primary:hover {
   background: #ff7a22;
+}
+
+.nav-desktop {
+  display: none;
+  align-items: center;
+  gap: 0.25rem;
+  margin-left: auto;
+}
+
+.nav-mobile {
+  margin-left: auto;
+}
+
+.nav-mobile .sheet-trigger,
+.nav-mobile button {
+  display: inline-flex;
+}
+
+@media (min-width: 48rem) {
+  .nav-desktop {
+    display: flex;
+  }
+
+  .nav-mobile {
+    display: none;
+  }
 }
 
 .mobile-link {
@@ -458,5 +497,101 @@ details[open] > .position-summary::after {
 
   .timeline-line {
     left: 18px;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    padding: 0.55rem 1.15rem;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.45);
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #ffffff;
+    background: linear-gradient(120deg, #0b2f8a 0%, #007e4e 55%, #ff8a3d 100%);
+    box-shadow: 0 14px 28px rgba(3, 33, 105, 0.25);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 18px 34px rgba(3, 33, 105, 0.25);
+    filter: brightness(1.02);
+  }
+
+  .btn-primary:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+    transform: none;
+    box-shadow: none;
+  }
+
+  .admin-card {
+    border-radius: 18px;
+    border: 1px solid rgba(15, 23, 42, 0.12);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(248, 250, 252, 0.92));
+    box-shadow: 0 24px 48px rgba(15, 23, 42, 0.12);
+  }
+
+  .admin-subcard {
+    border-radius: 14px;
+    border: 1px solid rgba(148, 163, 184, 0.25);
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+  }
+
+  .admin-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.4rem 0.9rem;
+    border-radius: 999px;
+    background: rgba(15, 23, 42, 0.9);
+    color: #ffffff;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .admin-tabs {
+    display: flex;
+    gap: 0.35rem;
+    padding: 0.35rem;
+    border-radius: 999px;
+    background: rgba(15, 23, 42, 0.06);
+  }
+
+  .admin-tab {
+    flex: 1;
+    padding: 0.45rem 0.9rem;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #475569;
+    transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .admin-tab--active {
+    color: #ffffff;
+    background: rgba(15, 23, 42, 0.9);
+    box-shadow: 0 12px 24px rgba(15, 23, 42, 0.18);
+  }
+
+  .admin-formio .formio-component textarea.form-control {
+    width: 100%;
+    min-width: 38rem;
+    max-width: 100%;
+    resize: both;
+  }
+
+  @media (max-width: 1024px) {
+    .admin-formio .formio-component textarea.form-control {
+      min-width: 100%;
+    }
   }
 }

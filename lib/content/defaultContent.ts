@@ -108,6 +108,11 @@ export const defaultContent = {
       ]
     }
   },
+  site_settings: {
+    fields: {
+      logoHeight: 48
+    }
+  },
   contact: {
     fields: {
       titleZh: "聯絡方式",

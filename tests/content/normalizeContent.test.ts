@@ -25,4 +25,15 @@ describe("normalizeContent", function () {
     expect(typeof output.project_intro.fields.posterUrl).toBe("string")
     expect(Array.isArray(output.project_intro.fields.infoCards)).toBe(true)
   })
+
+  it("fills site_settings from defaults", function () {
+    const input = {
+      project_intro: { fields: { titleZh: "更新標題" } }
+    }
+
+    const output = normalizeContent(input)
+
+    expect(output.site_settings).toBeTruthy()
+    expect(output.site_settings.fields.logoHeight).toBe(48)
+  })
 })

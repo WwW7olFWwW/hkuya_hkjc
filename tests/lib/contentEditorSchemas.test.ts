@@ -48,4 +48,9 @@ describe("contentEditorSchemas", function () {
     const steps = uiSchema.elements[2]
     expect(steps.options.childLabelProp).toBe("date")
   })
+
+  it("builds site_settings schema with logoHeight", function () {
+    const schema = getBlockSchema("site_settings")
+    expect(schema.properties.logoHeight.type).toBe("number")
+  })
 })

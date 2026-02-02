@@ -296,6 +296,21 @@ function buildContactSchema(): SchemaEntry {
   }
 }
 
+function buildSiteSettingsSchema(): SchemaEntry {
+  return {
+    schema: {
+      type: "object",
+      properties: {
+        logoHeight: { type: "number" }
+      }
+    },
+    uischema: {
+      type: "VerticalLayout",
+      elements: [{ type: "Control", scope: "#/properties/logoHeight" }]
+    }
+  }
+}
+
 function buildGenericSchema(slug: string): SchemaEntry {
   const block = defaultContent[slug as keyof typeof defaultContent] as GenericBlock | undefined
   const fields = block ? block.fields : {}
@@ -329,7 +344,8 @@ const blockSchemas: BlockSchemas = {
   timeline: buildTimelineSchema(),
   positions: buildPositionsSchema(),
   about_us: buildAboutUsSchema(),
-  contact: buildContactSchema()
+  contact: buildContactSchema(),
+  site_settings: buildSiteSettingsSchema()
 }
 
 export function getBlockSchema(slug: string) {

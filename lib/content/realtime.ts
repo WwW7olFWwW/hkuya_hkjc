@@ -1,4 +1,4 @@
-import { supabase } from "../supabase/client"
+import { getSupabaseClient } from "../supabase/client"
 import { normalizeContent } from "./normalizeContent"
 
 type ContentMap = Record<string, { fields: Record<string, unknown> }>
@@ -30,6 +30,7 @@ export function applyContentUpdate(current: ContentMap, payload: ChangePayload) 
 }
 
 export function subscribeContentChanges(handler: ChangeHandler) {
+  const supabase = getSupabaseClient()
   return supabase
     .channel("content_blocks_changes")
     .on(

@@ -5,20 +5,25 @@ import AdminPage from "../../components/admin/AdminPage.vue"
 const signInWithPassword = vi.hoisted(function () {
   return vi.fn()
 })
+const getSupabaseClient = vi.hoisted(function () {
+  return vi.fn()
+})
 
 vi.mock("../../lib/supabase/client", function () {
   return {
-    supabase: {
-      auth: {
-        signInWithPassword: signInWithPassword
-      }
-    }
+    getSupabaseClient: getSupabaseClient
   }
 })
 
 describe("AdminPage", function () {
   beforeEach(function () {
     signInWithPassword.mockReset()
+    getSupabaseClient.mockReset()
+    getSupabaseClient.mockReturnValue({
+      auth: {
+        signInWithPassword: signInWithPassword
+      }
+    })
   })
 
   afterEach(function () {

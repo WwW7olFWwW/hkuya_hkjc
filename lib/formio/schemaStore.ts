@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase/client"
+import { getSupabaseClient } from "@/lib/supabase/client"
 import { pickHistoryIdsToDelete } from "./schemaHistory"
 
 export type FormioSchemaRecord = {
@@ -19,6 +19,7 @@ export type FormioHistoryRecord = {
 }
 
 export async function fetchFormSchema(slug: string) {
+  const supabase = getSupabaseClient()
   const response = await supabase
     .from("formio_forms")
     .select("slug, schema, version, updated_at, updated_by")
@@ -33,6 +34,7 @@ export async function fetchFormSchema(slug: string) {
 }
 
 export async function fetchFormHistory(slug: string, limit: number) {
+  const supabase = getSupabaseClient()
   const response = await supabase
     .from("formio_forms_history")
     .select("id, slug, schema, version, created_at, created_by")
@@ -53,6 +55,7 @@ export async function saveFormSchema(
   version: string,
   updatedBy?: string
 ) {
+  const supabase = getSupabaseClient()
   const upsertResponse = await supabase
     .from("formio_forms")
     .upsert(
@@ -76,6 +79,7 @@ export async function saveFormSchema(
 }
 
 export async function trimHistory(slug: string, keep: number) {
+  const supabase = getSupabaseClient()
   const response = await supabase
     .from("formio_forms_history")
     .select("id, slug, created_at")
@@ -100,6 +104,7 @@ export async function trimHistory(slug: string, keep: number) {
 }
 
 export async function rollbackSchema(slug: string, history: FormioHistoryRecord) {
+  const supabase = getSupabaseClient()
   const version = history.version
   const schema = history.schema
 

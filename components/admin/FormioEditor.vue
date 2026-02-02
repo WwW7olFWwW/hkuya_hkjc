@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, ref, watch } from "vue"
-import { supabase } from "@/lib/supabase/client"
+import { getSupabaseClient } from "@/lib/supabase/client"
 import { defaultContent } from "@/lib/content/defaultContent"
 import { fetchFormSchema } from "@/lib/formio/schemaStore"
 import { mapSubmissionToContent } from "@/lib/formio/mapSubmission"
@@ -109,6 +109,7 @@ async function loadContentFields(slug: string) {
   const baseFields = cloneDefaultFields(slug)
   templateFields.value = baseFields
 
+  const supabase = getSupabaseClient()
   const response = await supabase
     .from("content_blocks")
     .select("fields")
@@ -161,6 +162,7 @@ async function handleSave() {
   const template = templateFields.value ? templateFields.value : {}
   const mapped = mapSubmissionToContent(submissionData, template)
 
+  const supabase = getSupabaseClient()
   const response = await supabase
     .from("content_blocks")
     .upsert({ slug: props.slug, fields: mapped }, { onConflict: "slug" })

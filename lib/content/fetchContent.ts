@@ -1,4 +1,4 @@
-import { supabase } from "../supabase/client"
+import { getSupabaseClient } from "../supabase/client"
 import { normalizeContent } from "./normalizeContent"
 
 type ContentRecord = {
@@ -19,6 +19,7 @@ export function mapRecordsToContent(records: ContentRecord[]) {
 }
 
 export async function fetchContentBlocks() {
+  const supabase = getSupabaseClient()
   const response = await supabase.from("content_blocks").select("slug, fields")
 
   if (response.error) {

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from "vue"
-import { supabase } from "@/lib/supabase/client"
+import { getSupabaseClient } from "@/lib/supabase/client"
 import ContentEditor from "@/components/admin/ContentEditor.vue"
 
 const email = ref("")
@@ -10,6 +10,7 @@ const sessionReady = ref(false)
 
 async function handleLogin() {
   errorMessage.value = ""
+  const supabase = getSupabaseClient()
   const response = await supabase.auth.signInWithPassword({
     email: email.value,
     password: password.value

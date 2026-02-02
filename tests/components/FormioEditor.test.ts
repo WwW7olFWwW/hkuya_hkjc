@@ -4,6 +4,9 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest"
 const fetchFormSchema = vi.hoisted(function () {
   return vi.fn()
 })
+const getSupabaseClient = vi.hoisted(function () {
+  return vi.fn()
+})
 
 vi.mock("../../lib/formio/schemaStore", function () {
   return {
@@ -13,9 +16,7 @@ vi.mock("../../lib/formio/schemaStore", function () {
 
 vi.mock("../../lib/supabase/client", function () {
   return {
-    supabase: {
-      from: vi.fn()
-    }
+    getSupabaseClient: getSupabaseClient
   }
 })
 
@@ -24,6 +25,10 @@ import FormioEditor from "../../components/admin/FormioEditor.vue"
 describe("FormioEditor", function () {
   beforeEach(function () {
     fetchFormSchema.mockReset()
+    getSupabaseClient.mockReset()
+    getSupabaseClient.mockReturnValue({
+      from: vi.fn()
+    })
   })
 
   afterEach(function () {

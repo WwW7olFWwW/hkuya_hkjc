@@ -1,4 +1,5 @@
 import { defaultContent } from "@/lib/content/defaultContent"
+import { applySchemaDefaults } from "@/lib/formio/schemaDefaults"
 
 type FormioComponent = {
   type: string
@@ -6,6 +7,15 @@ type FormioComponent = {
   label?: string
   title?: string
   input?: boolean
+  inlineEdit?: boolean
+  openWhenEmpty?: boolean
+  collapsible?: boolean
+  collapsed?: boolean
+  validate?: {
+    min?: number
+    max?: number
+    step?: number
+  }
   components?: FormioComponent[]
 }
 
@@ -47,13 +57,23 @@ function buildTextAreaField(key: string) {
   } as FormioComponent
 }
 
-function buildNumberField(key: string) {
-  return {
+function buildNumberField(key: string, options?: { min?: number; max?: number; step?: number }) {
+  const component: FormioComponent = {
     type: "number",
     key: key,
     label: toLabel(key),
     input: true
-  } as FormioComponent
+  }
+
+  if (options) {
+    component.validate = {
+      min: options.min,
+      max: options.max,
+      step: options.step
+    }
+  }
+
+  return component
 }
 
 function buildCheckboxField(key: string) {
@@ -70,6 +90,8 @@ function buildPanelField(key: string, components: FormioComponent[]) {
     type: "panel",
     key: key,
     title: toLabel(key),
+    collapsible: false,
+    collapsed: false,
     components: components
   } as FormioComponent
 }
@@ -80,6 +102,8 @@ function buildEditGridField(key: string, components: FormioComponent[]) {
     key: key,
     label: toLabel(key),
     input: true,
+    inlineEdit: true,
+    openWhenEmpty: true,
     components: components
   } as FormioComponent
 }
@@ -116,6 +140,9 @@ function buildComponentFromValue(key: string, value: unknown) {
     return buildTextField(key)
   }
   if (typeof value === "number") {
+    if (key === "logoHeight") {
+      return buildNumberField(key, { min: 32, max: 96, step: 1 })
+    }
     return buildNumberField(key)
   }
   if (typeof value === "boolean") {
@@ -145,12 +172,14 @@ export function buildFormioSchemaFromDefault(slug: string): FormioSchema {
   const entry = defaultContent[slug as keyof typeof defaultContent]
   const fields = entry ? (entry.fields as Record<string, unknown>) : {}
 
-  return {
+  const schema = {
     title: slug,
     type: "form",
     display: "form",
     components: buildComponentsFromObject(fields)
   }
+
+  return applySchemaDefaults(schema as Record<string, unknown>) as FormioSchema
 }
 
 export function buildAllFormioSchemasFromDefault() {

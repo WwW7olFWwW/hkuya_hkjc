@@ -33,6 +33,17 @@ export async function fetchFormSchema(slug: string) {
   return response.data as FormioSchemaRecord | null
 }
 
+export async function fetchAllFormSchemas() {
+  const supabase = getSupabaseClient()
+  const response = await supabase.from("formio_forms").select("slug")
+
+  if (response.error) {
+    throw response.error
+  }
+
+  return (response.data || []) as Array<{ slug: string }>
+}
+
 export async function fetchFormHistory(slug: string, limit: number) {
   const supabase = getSupabaseClient()
   const response = await supabase

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from "vue"
 import { defaultContent } from "@/lib/content/defaultContent"
-import { saveFormSchema } from "@/lib/formio/schemaStore"
+import { fetchAllFormSchemas, saveFormSchema } from "@/lib/formio/schemaStore"
 import { buildAllFormioSchemasFromDefault } from "@/lib/formio/schemaGenerator"
 import FormioBuilder from "@/components/admin/FormioBuilder.vue"
 import FormioEditor from "@/components/admin/FormioEditor.vue"
@@ -30,13 +30,16 @@ function formatErrorMessage(error: unknown) {
   return "未知錯誤"
 }
 
-async function handleGenerateAllSchemas() {
+async function handleGenerateAllSchemas(mode: "all" | "missing") {
   if (isBatchSaving.value) {
     return
   }
 
   if (typeof window !== "undefined") {
-    const confirmed = window.confirm("將為所有區塊產生並儲存 schema（可能覆蓋現有版本），是否繼續？")
+    const confirmed =
+      mode === "missing"
+        ? window.confirm("只建立缺少的 schema，是否繼續？")
+        : window.confirm("將為所有區塊產生並儲存 schema（可能覆蓋現有版本），是否繼續？")
     if (!confirmed) {
       return
     }
@@ -48,17 +51,39 @@ async function handleGenerateAllSchemas() {
     return
   }
 
+  let targets = entries
+  if (mode === "missing") {
+    const existing = await fetchAllFormSchemas()
+    const existingSlugs = new Set<string>()
+    for (const row of existing) {
+      if (row && row.slug) {
+        existingSlugs.add(row.slug)
+      }
+    }
+    targets = []
+    for (const entry of entries) {
+      if (!existingSlugs.has(entry.slug)) {
+        targets.push(entry)
+      }
+    }
+  }
+
+  if (targets.length === 0) {
+    batchStatus.value = mode === "missing" ? "沒有缺少的 schema。" : "沒有可產生的 schema。"
+    return
+  }
+
   isBatchSaving.value = true
   batchStatus.value = ""
   let savedCount = 0
   const errors: string[] = []
 
-  for (const entry of entries) {
+  for (const entry of targets) {
     const version = String(Date.now())
     try {
       await saveFormSchema(entry.slug, entry.schema as Record<string, unknown>, version)
       savedCount += 1
-      batchStatus.value = "已儲存 " + savedCount + " / " + entries.length
+      batchStatus.value = "已儲存 " + savedCount + " / " + targets.length
     } catch (error) {
       errors.push(entry.slug + ": " + formatErrorMessage(error))
     }
@@ -67,7 +92,7 @@ async function handleGenerateAllSchemas() {
   if (errors.length > 0) {
     batchStatus.value = "完成，但有錯誤：" + errors.join("; ")
   } else {
-    batchStatus.value = "已完成，全部 " + entries.length + " 個 schema"
+    batchStatus.value = "已完成，全部 " + targets.length + " 個 schema"
   }
 
   isBatchSaving.value = false
@@ -98,9 +123,17 @@ async function handleGenerateAllSchemas() {
             type="button"
             class="rounded-md border border-slate-200 px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50"
             :disabled="isBatchSaving"
-            @click="handleGenerateAllSchemas"
+            @click="handleGenerateAllSchemas('all')"
           >
             批次產生並儲存
+          </button>
+          <button
+            type="button"
+            class="rounded-md border border-slate-200 px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50"
+            :disabled="isBatchSaving"
+            @click="handleGenerateAllSchemas('missing')"
+          >
+            只建立缺少的
           </button>
           <button
             type="button"

@@ -8,10 +8,14 @@ const saveFormSchema = vi.hoisted(function () {
 const buildAllFormioSchemasFromDefault = vi.hoisted(function () {
   return vi.fn()
 })
+const fetchAllFormSchemas = vi.hoisted(function () {
+  return vi.fn()
+})
 
 vi.mock("../../lib/formio/schemaStore", function () {
   return {
-    saveFormSchema: saveFormSchema
+    saveFormSchema: saveFormSchema,
+    fetchAllFormSchemas: fetchAllFormSchemas
   }
 })
 
@@ -21,10 +25,26 @@ vi.mock("../../lib/formio/schemaGenerator", function () {
   }
 })
 
+function setConfirmResult(result: boolean) {
+  const windowRecord = window as unknown as Record<string, unknown>
+  const originalConfirm = windowRecord.confirm
+  const confirmSpy = vi.fn()
+  confirmSpy.mockReturnValue(result)
+  windowRecord.confirm = confirmSpy
+  return function restoreConfirm() {
+    if (typeof originalConfirm === "undefined") {
+      delete windowRecord.confirm
+    } else {
+      windowRecord.confirm = originalConfirm
+    }
+  }
+}
+
 describe("ContentEditor Formio entry", function () {
   beforeEach(function () {
     saveFormSchema.mockReset()
     buildAllFormioSchemasFromDefault.mockReset()
+    fetchAllFormSchemas.mockReset()
   })
 
   afterEach(function () {
@@ -82,11 +102,7 @@ describe("ContentEditor Formio entry", function () {
     ])
     saveFormSchema.mockResolvedValue(undefined)
 
-    const windowRecord = window as unknown as Record<string, unknown>
-    const originalConfirm = windowRecord.confirm
-    const confirmSpy = vi.fn()
-    confirmSpy.mockReturnValue(true)
-    windowRecord.confirm = confirmSpy
+    const restoreConfirm = setConfirmResult(true)
 
     render(ContentEditor, {
       global: {
@@ -111,10 +127,41 @@ describe("ContentEditor Formio entry", function () {
     expect(saveFormSchema.mock.calls[0][0]).toBe("project_intro")
     expect(saveFormSchema.mock.calls[1][0]).toBe("timeline")
 
-    if (typeof originalConfirm === "undefined") {
-      delete windowRecord.confirm
-    } else {
-      windowRecord.confirm = originalConfirm
-    }
+    restoreConfirm()
+  })
+
+  it("batch generates missing schemas only", async function () {
+    buildAllFormioSchemasFromDefault.mockReturnValue([
+      { slug: "project_intro", schema: { components: [] } },
+      { slug: "timeline", schema: { components: [] } }
+    ])
+    saveFormSchema.mockResolvedValue(undefined)
+    fetchAllFormSchemas.mockResolvedValue([{ slug: "project_intro" }])
+
+    const restoreConfirm = setConfirmResult(true)
+
+    render(ContentEditor, {
+      global: {
+        stubs: {
+          FormioBuilder: {
+            name: "FormioBuilder",
+            props: ["slug"],
+            template: "<div>BuilderStub</div>"
+          },
+          FormioEditor: {
+            name: "FormioEditor",
+            props: ["slug"],
+            template: "<div>EditorStub</div>"
+          }
+        }
+      }
+    })
+
+    await fireEvent.click(screen.getByText("只建立缺少的"))
+
+    expect(saveFormSchema).toHaveBeenCalledTimes(1)
+    expect(saveFormSchema.mock.calls[0][0]).toBe("timeline")
+
+    restoreConfirm()
   })
 })

@@ -25,3 +25,4 @@
 - 為避免 VitePress build 讀取 `@formio/js` edit.data 失敗，Formio Builder/Editor 改用 `@formio/js/dist/formio.full.js` 動態載入；`.vitepress/config.ts` 加入 `optimizeDeps.exclude` 與 `ssr.external`。
 - 新增 `lib/formio/schemaDefaults.ts` 以補齊 schema 產生流程。
 - `npm test` 全數通過；`npm run docs:build` 成功但有警告：`bootstrap-icons` 字型未在 build 時解析、`formio.full.js` 多處 `eval` 警告、chunk size > 500 kB。
+- 2026-02-04 部署前再測：`npm run docs:build` 成功；警告同上（字型解析、eval、chunk size）。 

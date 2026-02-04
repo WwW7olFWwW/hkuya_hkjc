@@ -26,3 +26,4 @@
 - 新增 `lib/formio/schemaDefaults.ts` 以補齊 schema 產生流程。
 - `npm test` 全數通過；`npm run docs:build` 成功但有警告：`bootstrap-icons` 字型未在 build 時解析、`formio.full.js` 多處 `eval` 警告、chunk size > 500 kB。
 - 2026-02-04 部署前再測：`npm run docs:build` 成功；警告同上（字型解析、eval、chunk size）。 
+- 2026-02-04 已部署到 ECS：靜態檔案在 `/var/www/hkuya.org/hkjc`，Caddy 站台 `hkuya.org` 對外提供 `/hkjc`；Caddy 已成功取得 hkuya.org 憑證並回應 `/hkjc/`、`/hkjc/admin.html`。

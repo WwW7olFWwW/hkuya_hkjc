@@ -21,3 +21,7 @@
 - 所有 section 版型對齊 root；內容改由 Supabase `content.fields.*` 驅動，但保留 root 的結構與 CSS class（如 timeline/tabs/position）。
 - 2026-01-30 視覺調整方向：活力活動感，新增 CTA 橙色與淡色背景層級，強化導覽對齊與錨點 scroll margin。
 - 已套用活動感視覺調整：導覽列對齊、背景紋理、CTA 橙色、主次卡片層級、Tabs a11y、Contact/Interview 區塊版型更新。
+- 2026-02-03 合併 `plan/formio-js` → `main`（fast-forward），新增 Form.io Builder/Editor 與 schema 管理相關檔案。
+- 為避免 VitePress build 讀取 `@formio/js` edit.data 失敗，Formio Builder/Editor 改用 `@formio/js/dist/formio.full.js` 動態載入；`.vitepress/config.ts` 加入 `optimizeDeps.exclude` 與 `ssr.external`。
+- 新增 `lib/formio/schemaDefaults.ts` 以補齊 schema 產生流程。
+- `npm test` 全數通過；`npm run docs:build` 成功但有警告：`bootstrap-icons` 字型未在 build 時解析、`formio.full.js` 多處 `eval` 警告、chunk size > 500 kB。

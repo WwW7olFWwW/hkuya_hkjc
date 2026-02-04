@@ -10,6 +10,17 @@ type FormInstance = {
   destroy?: { (): void }
 }
 
+type FormioFacade = {
+  createForm?: {
+    (element: HTMLElement, schema: Record<string, unknown>, options: Record<string, unknown>): Promise<unknown>
+  }
+}
+
+type FormioModule = FormioFacade & {
+  Formio?: FormioFacade
+  default?: FormioFacade
+}
+
 type ContentRecord = {
   fields?: Record<string, unknown> | null
 }
@@ -32,6 +43,16 @@ function formatErrorMessage(error: unknown) {
     return error
   }
   return "未知錯誤"
+}
+
+function resolveFormio(module: FormioModule) {
+  if (module.Formio) {
+    return module.Formio
+  }
+  if (module.default) {
+    return module.default
+  }
+  return module
 }
 
 function cloneDefaultFields(slug: string) {
@@ -82,8 +103,8 @@ async function mountForm(schema: Record<string, unknown>, data: Record<string, u
 
   await destroyForm()
 
-  const module = await import("@formio/js")
-  const Formio = module.Formio
+  const module = await import("@formio/js/dist/formio.full.js")
+  const Formio = resolveFormio(module as FormioModule)
   const instance = await Formio.createForm(formTarget.value, schema, {
     noAlerts: true
   })

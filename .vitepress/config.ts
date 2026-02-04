@@ -33,6 +33,12 @@ export default defineConfig(function (context) {
         'import.meta.env.VITE_SUPABASE_URL': JSON.stringify(supabaseUrl),
         'import.meta.env.VITE_SUPABASE_ANON_KEY': JSON.stringify(supabaseAnonKey)
       },
+      optimizeDeps: {
+        exclude: ['@formio/js']
+      },
+      ssr: {
+        external: ['@formio/js']
+      },
       resolve: {
         alias: {
           '@': rootDir

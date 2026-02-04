@@ -13,7 +13,7 @@ const fetchFormHistory = vi.hoisted(function () {
   return vi.fn()
 })
 
-vi.mock("@formio/js", function () {
+vi.mock("@formio/js/dist/formio.full.js", function () {
   return {
     Formio: {
       builder: builder

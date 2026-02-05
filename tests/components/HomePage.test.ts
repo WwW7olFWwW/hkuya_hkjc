@@ -31,11 +31,11 @@ describe("HomePage", function () {
     })
 
     vi.spyOn(realtime, "subscribeContentChanges").mockImplementation(function () {
-      return {
+      return Promise.resolve({
         unsubscribe: function () {
           return
         }
-      }
+      })
     })
 
     render(HomePage)

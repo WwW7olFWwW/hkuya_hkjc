@@ -2,26 +2,28 @@ import { render, screen, fireEvent, cleanup } from "@testing-library/vue"
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest"
 import AdminPage from "../../components/admin/AdminPage.vue"
 
-const signInWithPassword = vi.hoisted(function () {
+const authWithPassword = vi.hoisted(function () {
   return vi.fn()
 })
-const getSupabaseClient = vi.hoisted(function () {
+const getPocketBaseClient = vi.hoisted(function () {
   return vi.fn()
 })
 
-vi.mock("../../lib/supabase/client", function () {
+vi.mock("../../lib/pocketbase/client", function () {
   return {
-    getSupabaseClient: getSupabaseClient
+    getPocketBaseClient: getPocketBaseClient
   }
 })
 
 describe("AdminPage", function () {
   beforeEach(function () {
-    signInWithPassword.mockReset()
-    getSupabaseClient.mockReset()
-    getSupabaseClient.mockReturnValue({
-      auth: {
-        signInWithPassword: signInWithPassword
+    authWithPassword.mockReset()
+    getPocketBaseClient.mockReset()
+    getPocketBaseClient.mockReturnValue({
+      collection: function () {
+        return {
+          authWithPassword: authWithPassword
+        }
       }
     })
   })
@@ -31,7 +33,7 @@ describe("AdminPage", function () {
   })
 
   it("shows error when login fails", async function () {
-    signInWithPassword.mockResolvedValue({ error: { message: "登入失敗" } })
+    authWithPassword.mockRejectedValue(new Error("登入失敗"))
 
     render(AdminPage, {
       global: {
@@ -51,7 +53,7 @@ describe("AdminPage", function () {
   })
 
   it("shows editor when login succeeds", async function () {
-    signInWithPassword.mockResolvedValue({ error: null })
+    authWithPassword.mockResolvedValue({})
 
     render(AdminPage, {
       global: {

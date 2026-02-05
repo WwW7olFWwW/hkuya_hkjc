@@ -5,8 +5,7 @@ import { resolve } from 'node:path'
 export default defineConfig(function (context) {
   const rootDir = resolve(__dirname, '..')
   const env = loadEnv(context.mode, rootDir, '')
-  const supabaseUrl = env.VITE_SUPABASE_URL || ''
-  const supabaseAnonKey = env.VITE_SUPABASE_ANON_KEY || ''
+  const pocketbaseUrl = env.VITE_POCKETBASE_URL || '/pb'
 
   return {
     lang: 'zh-TW',
@@ -18,11 +17,7 @@ export default defineConfig(function (context) {
       [
         'script',
         {},
-        "window.__SUPABASE_URL__ = " +
-          JSON.stringify(supabaseUrl) +
-          ";window.__SUPABASE_ANON_KEY__ = " +
-          JSON.stringify(supabaseAnonKey) +
-          ";"
+        "window.__POCKETBASE_URL__ = " + JSON.stringify(pocketbaseUrl) + ";"
       ]
     ],
     srcExclude: ['old/**'],
@@ -30,8 +25,18 @@ export default defineConfig(function (context) {
       envDir: rootDir,
       envPrefix: ['VITE_', 'VITEPRESS_'],
       define: {
-        'import.meta.env.VITE_SUPABASE_URL': JSON.stringify(supabaseUrl),
-        'import.meta.env.VITE_SUPABASE_ANON_KEY': JSON.stringify(supabaseAnonKey)
+        'import.meta.env.VITE_POCKETBASE_URL': JSON.stringify(pocketbaseUrl)
+      },
+      server: {
+        proxy: {
+          '/pb': {
+            target: 'http://127.0.0.1:8090',
+            changeOrigin: true,
+            rewrite: function (path) {
+              return path.replace(/^\/pb/, '')
+            }
+          }
+        }
       },
       optimizeDeps: {
         exclude: ['@formio/js']

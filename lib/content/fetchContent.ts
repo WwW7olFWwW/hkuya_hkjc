@@ -1,4 +1,5 @@
-import { getSupabaseClient } from "../supabase/client"
+import { getPocketBaseClient } from "../pocketbase/client"
+import { POCKETBASE_COLLECTIONS } from "../pocketbase/collections"
 import { normalizeContent } from "./normalizeContent"
 
 type ContentRecord = {
@@ -19,12 +20,11 @@ export function mapRecordsToContent(records: ContentRecord[]) {
 }
 
 export async function fetchContentBlocks() {
-  const supabase = getSupabaseClient()
-  const response = await supabase.from("content_blocks").select("slug, fields")
+  const pocketbase = getPocketBaseClient()
+  const records = await pocketbase.collection(POCKETBASE_COLLECTIONS.contentBlocks).getFullList({
+    fields: "slug,fields",
+    sort: "slug"
+  })
 
-  if (response.error) {
-    throw response.error
-  }
-
-  return mapRecordsToContent(response.data as ContentRecord[])
+  return mapRecordsToContent(records as ContentRecord[])
 }

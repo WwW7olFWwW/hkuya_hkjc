@@ -5,9 +5,6 @@ function isRecord(value: unknown): value is UnknownRecord {
 }
 
 function splitLines(value: string) {
-  if (value.indexOf("\n") === -1) {
-    return value
-  }
   const lines = value.split(/\r?\n/)
   const cleaned: string[] = []
 
@@ -21,6 +18,13 @@ function splitLines(value: string) {
   return cleaned
 }
 
+function splitLinesOrString(value: string) {
+  if (value.indexOf("\n") === -1) {
+    return value
+  }
+  return splitLines(value)
+}
+
 function mapWithTemplate(value: unknown, template: unknown): unknown {
   if (Array.isArray(template)) {
     if (template.length === 0) {
@@ -30,6 +34,9 @@ function mapWithTemplate(value: unknown, template: unknown): unknown {
     if (typeof sample === "string") {
       if (typeof value === "string") {
         return splitLines(value)
+      }
+      if (Array.isArray(value)) {
+        return value
       }
       return value
     }
@@ -66,7 +73,7 @@ function mapWithTemplate(value: unknown, template: unknown): unknown {
 
 function mapWithNewlineFallback(value: unknown): unknown {
   if (typeof value === "string") {
-    return splitLines(value)
+    return splitLinesOrString(value)
   }
 
   if (Array.isArray(value)) {

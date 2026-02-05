@@ -14,7 +14,7 @@ let subscription: { unsubscribe: Function } | null = null
 
 onMounted(async function () {
   await load()
-  subscription = subscribeContentChanges(function (payload) {
+  subscription = await subscribeContentChanges(function (payload) {
     contentState.value = applyContentUpdate(contentState.value, payload)
   })
 })

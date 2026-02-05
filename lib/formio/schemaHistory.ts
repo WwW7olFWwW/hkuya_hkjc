@@ -1,5 +1,5 @@
 export type HistoryRow = {
-  id?: number
+  id?: string
   slug: string
   created_at: string
 }
@@ -28,20 +28,20 @@ export function trimHistoryForSlug(items: HistoryRow[], slug: string, keep: numb
 
 export function pickHistoryIdsToDelete(items: HistoryRow[], slug: string, keep: number) {
   const keepItems = trimHistoryForSlug(items, slug, keep)
-  const keepIds = new Set<number>()
+  const keepIds = new Set<string>()
 
   for (const item of keepItems) {
-    if (typeof item.id === "number") {
+    if (typeof item.id === "string") {
       keepIds.add(item.id)
     }
   }
 
-  const deleteIds: number[] = []
+  const deleteIds: string[] = []
   for (const item of items) {
     if (item.slug !== slug) {
       continue
     }
-    if (typeof item.id !== "number") {
+    if (typeof item.id !== "string") {
       continue
     }
     if (!keepIds.has(item.id)) {

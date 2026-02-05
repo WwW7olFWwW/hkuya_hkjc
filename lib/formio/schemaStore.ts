@@ -1,5 +1,12 @@
-import { getSupabaseClient } from "@/lib/supabase/client"
+import { getPocketBaseClient } from "@/lib/pocketbase/client"
+import { POCKETBASE_COLLECTIONS } from "@/lib/pocketbase/collections"
 import { pickHistoryIdsToDelete } from "./schemaHistory"
+
+type PocketBaseRecord = Record<string, unknown> & {
+  id?: string
+  created?: string
+  updated?: string
+}
 
 export type FormioSchemaRecord = {
   slug: string
@@ -10,7 +17,7 @@ export type FormioSchemaRecord = {
 }
 
 export type FormioHistoryRecord = {
-  id?: number
+  id?: string
   slug: string
   schema: Record<string, unknown>
   version: string
@@ -18,46 +25,98 @@ export type FormioHistoryRecord = {
   created_by?: string | null
 }
 
-export async function fetchFormSchema(slug: string) {
-  const supabase = getSupabaseClient()
-  const response = await supabase
-    .from("formio_forms")
-    .select("slug, schema, version, updated_at, updated_by")
-    .eq("slug", slug)
-    .maybeSingle()
+function isNotFoundError(error: unknown) {
+  if (!error || typeof error !== "object") {
+    return false
+  }
+  if (!("status" in error)) {
+    return false
+  }
+  return (error as { status?: number }).status === 404
+}
 
-  if (response.error) {
-    throw response.error
+function buildSlugFilter(slug: string) {
+  const safeSlug = slug.replace(/"/g, "\\\"")
+  return "slug = \"" + safeSlug + "\""
+}
+
+async function findRecordBySlug(collection: string, slug: string, fields: string) {
+  const pocketbase = getPocketBaseClient()
+  try {
+    const record = await pocketbase
+      .collection(collection)
+      .getFirstListItem(buildSlugFilter(slug), { fields: fields })
+    return record as PocketBaseRecord
+  } catch (error) {
+    if (isNotFoundError(error)) {
+      return null
+    }
+    throw error
+  }
+}
+
+function mapSchemaRecord(record: PocketBaseRecord): FormioSchemaRecord {
+  const schema = record.schema && typeof record.schema === "object" ? (record.schema as Record<string, unknown>) : {}
+  return {
+    slug: String(record.slug || ""),
+    schema: schema,
+    version: String(record.version || ""),
+    updated_at: typeof record.updated === "string" ? record.updated : undefined,
+    updated_by: record.updated_by ? String(record.updated_by) : null
+  }
+}
+
+function mapHistoryRecord(record: PocketBaseRecord): FormioHistoryRecord {
+  const schema = record.schema && typeof record.schema === "object" ? (record.schema as Record<string, unknown>) : {}
+  return {
+    id: record.id ? String(record.id) : undefined,
+    slug: String(record.slug || ""),
+    schema: schema,
+    version: String(record.version || ""),
+    created_at: typeof record.created === "string" ? record.created : undefined,
+    created_by: record.created_by ? String(record.created_by) : null
+  }
+}
+
+export async function fetchFormSchema(slug: string) {
+  const record = await findRecordBySlug(
+    POCKETBASE_COLLECTIONS.formioForms,
+    slug,
+    "id,slug,schema,version,updated,updated_by"
+  )
+
+  if (!record) {
+    return null
   }
 
-  return response.data as FormioSchemaRecord | null
+  return mapSchemaRecord(record)
 }
 
 export async function fetchAllFormSchemas() {
-  const supabase = getSupabaseClient()
-  const response = await supabase.from("formio_forms").select("slug")
+  const pocketbase = getPocketBaseClient()
+  const records = await pocketbase.collection(POCKETBASE_COLLECTIONS.formioForms).getFullList({
+    fields: "slug",
+    sort: "slug"
+  })
 
-  if (response.error) {
-    throw response.error
-  }
-
-  return (response.data || []) as Array<{ slug: string }>
+  return (records || []) as Array<{ slug: string }>
 }
 
 export async function fetchFormHistory(slug: string, limit: number) {
-  const supabase = getSupabaseClient()
-  const response = await supabase
-    .from("formio_forms_history")
-    .select("id, slug, schema, version, created_at, created_by")
-    .eq("slug", slug)
-    .order("created_at", { ascending: false })
-    .limit(limit)
+  const pocketbase = getPocketBaseClient()
+  const result = await pocketbase.collection(POCKETBASE_COLLECTIONS.formioFormsHistory).getList(1, limit, {
+    fields: "id,slug,schema,version,created,created_by",
+    filter: buildSlugFilter(slug),
+    sort: "-created"
+  })
 
-  if (response.error) {
-    throw response.error
+  const items = result.items || []
+  const mapped: FormioHistoryRecord[] = []
+  for (const record of items) {
+    mapped.push(mapHistoryRecord(record as PocketBaseRecord))
   }
 
-  return (response.data || []) as FormioHistoryRecord[]
+  return mapped
 }
 
 export async function saveFormSchema(
@@ -66,77 +125,71 @@ export async function saveFormSchema(
   version: string,
   updatedBy?: string
 ) {
-  const supabase = getSupabaseClient()
-  const upsertResponse = await supabase
-    .from("formio_forms")
-    .upsert(
-      { slug: slug, schema: schema, version: version, updated_by: updatedBy || null },
-      { onConflict: "slug" }
-    )
+  const pocketbase = getPocketBaseClient()
+  const existing = await findRecordBySlug(POCKETBASE_COLLECTIONS.formioForms, slug, "id")
 
-  if (upsertResponse.error) {
-    throw upsertResponse.error
+  if (existing && existing.id) {
+    await pocketbase
+      .collection(POCKETBASE_COLLECTIONS.formioForms)
+      .update(existing.id, { slug: slug, schema: schema, version: version, updated_by: updatedBy || null })
+  } else {
+    await pocketbase
+      .collection(POCKETBASE_COLLECTIONS.formioForms)
+      .create({ slug: slug, schema: schema, version: version, updated_by: updatedBy || null })
   }
 
-  const historyResponse = await supabase
-    .from("formio_forms_history")
-    .insert({ slug: slug, schema: schema, version: version, created_by: updatedBy || null })
-
-  if (historyResponse.error) {
-    throw historyResponse.error
-  }
+  await pocketbase
+    .collection(POCKETBASE_COLLECTIONS.formioFormsHistory)
+    .create({ slug: slug, schema: schema, version: version, created_by: updatedBy || null })
 
   await trimHistory(slug, 7)
 }
 
 export async function trimHistory(slug: string, keep: number) {
-  const supabase = getSupabaseClient()
-  const response = await supabase
-    .from("formio_forms_history")
-    .select("id, slug, created_at")
-    .eq("slug", slug)
-    .order("created_at", { ascending: false })
+  const pocketbase = getPocketBaseClient()
+  const records = await pocketbase.collection(POCKETBASE_COLLECTIONS.formioFormsHistory).getFullList({
+    fields: "id,slug,created",
+    filter: buildSlugFilter(slug),
+    sort: "-created"
+  })
 
-  if (response.error) {
-    throw response.error
+  const items: Array<{ id?: string; slug: string; created_at: string }> = []
+  for (const record of records) {
+    const mapped = mapHistoryRecord(record as PocketBaseRecord)
+    if (mapped.created_at) {
+      items.push({ id: mapped.id, slug: mapped.slug, created_at: mapped.created_at })
+    }
   }
 
-  const items = (response.data || []) as Array<{ id: number; slug: string; created_at: string }>
   const deleteIds = pickHistoryIdsToDelete(items, slug, keep)
-
   if (deleteIds.length === 0) {
     return
   }
 
-  const deleteResponse = await supabase.from("formio_forms_history").delete().in("id", deleteIds)
-  if (deleteResponse.error) {
-    throw deleteResponse.error
+  for (const id of deleteIds) {
+    await pocketbase.collection(POCKETBASE_COLLECTIONS.formioFormsHistory).delete(id)
   }
 }
 
 export async function rollbackSchema(slug: string, history: FormioHistoryRecord) {
-  const supabase = getSupabaseClient()
+  const pocketbase = getPocketBaseClient()
   const version = history.version
   const schema = history.schema
+  const existing = await findRecordBySlug(POCKETBASE_COLLECTIONS.formioForms, slug, "id")
 
-  const upsertResponse = await supabase
-    .from("formio_forms")
-    .upsert(
-      { slug: slug, schema: schema, version: version, updated_by: history.created_by || null },
-      { onConflict: "slug" }
-    )
-
-  if (upsertResponse.error) {
-    throw upsertResponse.error
+  if (existing && existing.id) {
+    await pocketbase
+      .collection(POCKETBASE_COLLECTIONS.formioForms)
+      .update(existing.id, { slug: slug, schema: schema, version: version, updated_by: history.created_by || null })
+  } else {
+    await pocketbase
+      .collection(POCKETBASE_COLLECTIONS.formioForms)
+      .create({ slug: slug, schema: schema, version: version, updated_by: history.created_by || null })
   }
 
-  const historyResponse = await supabase
-    .from("formio_forms_history")
-    .insert({ slug: slug, schema: schema, version: version, created_by: history.created_by || null })
-
-  if (historyResponse.error) {
-    throw historyResponse.error
-  }
+  await pocketbase
+    .collection(POCKETBASE_COLLECTIONS.formioFormsHistory)
+    .create({ slug: slug, schema: schema, version: version, created_by: history.created_by || null })
 
   await trimHistory(slug, 7)
 }

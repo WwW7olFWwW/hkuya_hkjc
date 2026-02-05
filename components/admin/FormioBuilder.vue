@@ -8,22 +8,14 @@ import {
   type FormioHistoryRecord
 } from "@/lib/formio/schemaStore"
 import { buildFormioSchemaFromDefault } from "@/lib/formio/schemaGenerator"
+import { resolveFormioFacade } from "@/lib/formio/resolveFormio"
+import { applyFormioAssets } from "@/lib/formio/formioAssets"
+import { loadFormioModule } from "@/lib/formio/loadFormio"
 
 type BuilderInstance = {
   schema?: Record<string, unknown>
   form?: Record<string, unknown>
   destroy?: { (): void }
-}
-
-type FormioFacade = {
-  builder?: {
-    (element: HTMLElement, schema: Record<string, unknown>, options: Record<string, unknown>): Promise<unknown>
-  }
-}
-
-type FormioModule = FormioFacade & {
-  Formio?: FormioFacade
-  default?: FormioFacade
 }
 
 const props = defineProps<{
@@ -57,16 +49,6 @@ function formatErrorMessage(error: unknown) {
   return "未知錯誤"
 }
 
-function resolveFormio(module: FormioModule) {
-  if (module.Formio) {
-    return module.Formio
-  }
-  if (module.default) {
-    return module.default
-  }
-  return module
-}
-
 async function destroyBuilder() {
   if (builderInstance.value && typeof builderInstance.value.destroy === "function") {
     builderInstance.value.destroy()
@@ -84,8 +66,15 @@ async function mountBuilder(schema: Record<string, unknown>) {
 
   await destroyBuilder()
 
-  const module = await import("@formio/js/dist/formio.full.js")
-  const Formio = resolveFormio(module as FormioModule)
+  const module = await loadFormioModule()
+  const Formio = resolveFormioFacade(module as unknown)
+
+  if (!Formio || typeof Formio.builder !== "function") {
+    throw new Error("Formio.builder is not available.")
+  }
+
+  applyFormioAssets(Formio, import.meta.env.BASE_URL || "/")
+
   const instance = await Formio.builder(builderTarget.value, schema, {
     display: "form"
   })

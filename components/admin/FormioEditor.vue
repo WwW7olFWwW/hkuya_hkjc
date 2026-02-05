@@ -1,27 +1,21 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, ref, watch } from "vue"
-import { getSupabaseClient } from "@/lib/supabase/client"
+import { getPocketBaseClient } from "@/lib/pocketbase/client"
+import { POCKETBASE_COLLECTIONS } from "@/lib/pocketbase/collections"
 import { defaultContent } from "@/lib/content/defaultContent"
 import { fetchFormSchema } from "@/lib/formio/schemaStore"
 import { mapSubmissionToContent } from "@/lib/formio/mapSubmission"
+import { resolveFormioFacade } from "@/lib/formio/resolveFormio"
+import { applyFormioAssets } from "@/lib/formio/formioAssets"
+import { loadFormioModule } from "@/lib/formio/loadFormio"
 
 type FormInstance = {
   submission?: unknown
   destroy?: { (): void }
 }
 
-type FormioFacade = {
-  createForm?: {
-    (element: HTMLElement, schema: Record<string, unknown>, options: Record<string, unknown>): Promise<unknown>
-  }
-}
-
-type FormioModule = FormioFacade & {
-  Formio?: FormioFacade
-  default?: FormioFacade
-}
-
 type ContentRecord = {
+  id?: string
   fields?: Record<string, unknown> | null
 }
 
@@ -43,16 +37,6 @@ function formatErrorMessage(error: unknown) {
     return error
   }
   return "未知錯誤"
-}
-
-function resolveFormio(module: FormioModule) {
-  if (module.Formio) {
-    return module.Formio
-  }
-  if (module.default) {
-    return module.default
-  }
-  return module
 }
 
 function cloneDefaultFields(slug: string) {
@@ -86,6 +70,50 @@ function mergeFields(
   return merged
 }
 
+function isNotFoundError(error: unknown) {
+  if (!error || typeof error !== "object") {
+    return false
+  }
+  if (!("status" in error)) {
+    return false
+  }
+  return (error as { status?: number }).status === 404
+}
+
+function buildSlugFilter(slug: string) {
+  const safeSlug = slug.replace(/\"/g, "\\\"")
+  return "slug = \"" + safeSlug + "\""
+}
+
+async function fetchContentRecord(slug: string) {
+  const pocketbase = getPocketBaseClient()
+  try {
+    const record = await pocketbase
+      .collection(POCKETBASE_COLLECTIONS.contentBlocks)
+      .getFirstListItem(buildSlugFilter(slug), { fields: "id,slug,fields" })
+    return record as ContentRecord
+  } catch (error) {
+    if (isNotFoundError(error)) {
+      return null
+    }
+    throw error
+  }
+}
+
+async function upsertContentRecord(slug: string, fields: Record<string, unknown>) {
+  const pocketbase = getPocketBaseClient()
+  const record = await fetchContentRecord(slug)
+
+  if (record && record.id) {
+    await pocketbase
+      .collection(POCKETBASE_COLLECTIONS.contentBlocks)
+      .update(record.id, { slug: slug, fields: fields })
+    return
+  }
+
+  await pocketbase.collection(POCKETBASE_COLLECTIONS.contentBlocks).create({ slug: slug, fields: fields })
+}
+
 async function destroyForm() {
   if (formInstance.value && typeof formInstance.value.destroy === "function") {
     formInstance.value.destroy()
@@ -103,8 +131,15 @@ async function mountForm(schema: Record<string, unknown>, data: Record<string, u
 
   await destroyForm()
 
-  const module = await import("@formio/js/dist/formio.full.js")
-  const Formio = resolveFormio(module as FormioModule)
+  const module = await loadFormioModule()
+  const Formio = resolveFormioFacade(module as unknown)
+
+  if (!Formio || typeof Formio.createForm !== "function") {
+    throw new Error("Formio.createForm is not available.")
+  }
+
+  applyFormioAssets(Formio, import.meta.env.BASE_URL || "/")
+
   const instance = await Formio.createForm(formTarget.value, schema, {
     noAlerts: true
   })
@@ -130,18 +165,7 @@ async function loadContentFields(slug: string) {
   const baseFields = cloneDefaultFields(slug)
   templateFields.value = baseFields
 
-  const supabase = getSupabaseClient()
-  const response = await supabase
-    .from("content_blocks")
-    .select("fields")
-    .eq("slug", slug)
-    .maybeSingle()
-
-  if (response.error) {
-    throw response.error
-  }
-
-  const record = response.data as ContentRecord | null
+  const record = await fetchContentRecord(slug)
   return mergeFields(baseFields, record ? record.fields : null)
 }
 
@@ -182,18 +206,12 @@ async function handleSave() {
   const submissionData = extractSubmissionData(formInstance.value.submission)
   const template = templateFields.value ? templateFields.value : {}
   const mapped = mapSubmissionToContent(submissionData, template)
-
-  const supabase = getSupabaseClient()
-  const response = await supabase
-    .from("content_blocks")
-    .upsert({ slug: props.slug, fields: mapped }, { onConflict: "slug" })
-
-  if (response.error) {
-    status.value = response.error.message
-    return
+  try {
+    await upsertContentRecord(props.slug, mapped)
+    status.value = "已儲存：" + props.slug
+  } catch (error) {
+    status.value = formatErrorMessage(error)
   }
-
-  status.value = "已儲存：" + props.slug
 }
 
 onMounted(function () {

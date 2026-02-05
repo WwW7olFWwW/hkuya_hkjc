@@ -1,17 +1,35 @@
-import { getSupabaseClient } from "../supabase/client"
+import { getPocketBaseClient } from "../pocketbase/client"
+import { POCKETBASE_COLLECTIONS } from "../pocketbase/collections"
 import { normalizeContent } from "./normalizeContent"
 
 type ContentMap = Record<string, { fields: Record<string, unknown> }>
 
 type ChangePayload = {
-  new: {
-    slug: string
-    fields: Record<string, unknown>
+  action?: "create" | "update" | "delete"
+  record?: {
+    slug?: string
+    fields?: Record<string, unknown>
   }
 }
 
 type ChangeHandler = {
   (payload: ChangePayload): void
+}
+
+function extractPayloadRecord(payload: ChangePayload) {
+  if (!payload || !payload.record) {
+    return null
+  }
+
+  const record = payload.record
+  if (!record.slug || !record.fields) {
+    return null
+  }
+
+  return {
+    slug: record.slug,
+    fields: record.fields
+  }
 }
 
 export function applyContentUpdate(current: ContentMap, payload: ChangePayload) {
@@ -22,23 +40,25 @@ export function applyContentUpdate(current: ContentMap, payload: ChangePayload) 
     next[key] = current[key]
   }
 
-  if (payload && payload.new) {
-    next[payload.new.slug] = { fields: payload.new.fields }
+  const record = extractPayloadRecord(payload)
+  if (record) {
+    next[record.slug] = { fields: record.fields }
   }
 
   return normalizeContent(next)
 }
 
-export function subscribeContentChanges(handler: ChangeHandler) {
-  const supabase = getSupabaseClient()
-  return supabase
-    .channel("content_blocks_changes")
-    .on(
-      "postgres_changes",
-      { event: "UPDATE", schema: "public", table: "content_blocks" },
-      function (payload) {
-        handler(payload as ChangePayload)
-      }
-    )
-    .subscribe()
+export async function subscribeContentChanges(handler: ChangeHandler) {
+  const pocketbase = getPocketBaseClient()
+  const unsubscribe = await pocketbase
+    .collection(POCKETBASE_COLLECTIONS.contentBlocks)
+    .subscribe("*", function (payload) {
+      handler(payload as ChangePayload)
+    })
+
+  return {
+    unsubscribe: function () {
+      return unsubscribe()
+    }
+  }
 }

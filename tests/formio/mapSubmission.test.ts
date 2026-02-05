@@ -12,6 +12,16 @@ describe("mapSubmissionToContent", function () {
     expect(result.duties).toEqual(["a", "b"])
   })
 
+  it("wraps single line string into array when template is string array", function () {
+    const template = {
+      duties: [""]
+    }
+
+    const result = mapSubmissionToContent({ duties: "single line" }, template)
+
+    expect(result.duties).toEqual(["single line"])
+  })
+
   it("keeps multiline string when template is string", function () {
     const template = {
       description: ""

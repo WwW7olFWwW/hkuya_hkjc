@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from "vue"
-import { getSupabaseClient } from "@/lib/supabase/client"
+import { getPocketBaseClient } from "@/lib/pocketbase/client"
+import { POCKETBASE_COLLECTIONS } from "@/lib/pocketbase/collections"
 import ContentEditor from "@/components/admin/ContentEditor.vue"
 
 const email = ref("")
@@ -10,18 +11,19 @@ const sessionReady = ref(false)
 
 async function handleLogin() {
   errorMessage.value = ""
-  const supabase = getSupabaseClient()
-  const response = await supabase.auth.signInWithPassword({
-    email: email.value,
-    password: password.value
-  })
-
-  if (response.error) {
-    errorMessage.value = response.error.message
-    return
+  const pocketbase = getPocketBaseClient()
+  try {
+    await pocketbase.collection(POCKETBASE_COLLECTIONS.admins).authWithPassword(email.value, password.value)
+    sessionReady.value = true
+  } catch (error) {
+    if (error instanceof Error) {
+      errorMessage.value = error.message
+    } else if (typeof error === "string") {
+      errorMessage.value = error
+    } else {
+      errorMessage.value = "登入失敗"
+    }
   }
-
-  sessionReady.value = true
 }
 </script>
 

@@ -27,3 +27,46 @@
 - `npm test` 全數通過；`npm run docs:build` 成功但有警告：`bootstrap-icons` 字型未在 build 時解析、`formio.full.js` 多處 `eval` 警告、chunk size > 500 kB。
 - 2026-02-04 部署前再測：`npm run docs:build` 成功；警告同上（字型解析、eval、chunk size）。 
 - 2026-02-04 已部署到 ECS：靜態檔案在 `/var/www/hkuya.org/hkjc`，Caddy 站台 `hkuya.org` 對外提供 `/hkjc`；Caddy 已成功取得 hkuya.org 憑證並回應 `/hkjc/`、`/hkjc/admin.html`。
+
+## 部署指引（重新 docs:build 並部署到 /var/www/hkuya.org/hkjc）
+
+### 前置條件
+- `.env.local` 必須存在於專案根目錄，並包含：
+  - `VITE_SUPABASE_URL`
+  - `VITE_SUPABASE_ANON_KEY`
+
+### 步驟
+1. 進入專案並確認環境變數檔案：
+   ```bash
+   cd /home/pklaw/hkuya_hkjc
+   ls -l .env.local
+   ```
+
+2. 重新建置：
+   ```bash
+   npm run docs:build
+   ```
+
+3. 備份舊站（建議）：
+   ```bash
+   ts=$(date +%Y%m%d%H%M%S)
+   sudo mv /var/www/hkuya.org/hkjc /var/www/hkuya.org/hkjc.bak-$ts
+   sudo mkdir -p /var/www/hkuya.org/hkjc
+   ```
+
+4. 部署新產物：
+   ```bash
+   sudo cp -a /home/pklaw/hkuya_hkjc/.vitepress/dist/. /var/www/hkuya.org/hkjc/
+   ```
+
+5. 本機驗證：
+   ```bash
+   rg -n "__SUPABASE_" /var/www/hkuya.org/hkjc/admin.html
+   curl -sS -o /dev/null -w "%{http_code}\n" --resolve hkuya.org:443:127.0.0.1 https://hkuya.org/hkjc/admin.html
+   ```
+
+### 回滾方式（如需要）
+```bash
+sudo rm -rf /var/www/hkuya.org/hkjc
+sudo mv /var/www/hkuya.org/hkjc.bak-<timestamp> /var/www/hkuya.org/hkjc
+```

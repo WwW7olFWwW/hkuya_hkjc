@@ -1,4 +1,4 @@
-import { render, screen, cleanup } from "@testing-library/vue"
+import { render, screen, cleanup, waitFor } from "@testing-library/vue"
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest"
 
 const fetchFormSchema = vi.hoisted(function () {
@@ -59,6 +59,63 @@ describe("FormioEditor", function () {
       }
     })
 
+    const heading = await screen.findByText("Content Editor")
+    expect(heading.closest(".admin-formio")).toBeTruthy()
     expect(await screen.findByText("尚未建立 schema")).toBeTruthy()
+  })
+
+  it("normalizes about_us logo string before setting submission", async function () {
+    const formInstance: Record<string, unknown> = {}
+    createForm.mockResolvedValue(formInstance)
+
+    fetchFormSchema.mockResolvedValue({
+      slug: "about_us",
+      schema: {
+        components: []
+      }
+    })
+
+    const getFirstListItem = vi.fn()
+    getFirstListItem.mockResolvedValue({
+      id: "record-1",
+      fields: {
+        organizations: [
+          {
+            role: "合作機構",
+            name: "Test Org",
+            logo: "https://example.com/logo.png",
+            url: "https://example.com"
+          }
+        ]
+      }
+    })
+
+    const collection = vi.fn()
+    collection.mockReturnValue({
+      getFirstListItem: getFirstListItem
+    })
+
+    getPocketBaseClient.mockReturnValue({
+      collection: collection
+    })
+
+    render(FormioEditor, {
+      props: {
+        slug: "about_us"
+      }
+    })
+
+    await waitFor(function () {
+      expect(createForm).toHaveBeenCalledTimes(1)
+    })
+
+    const submission = formInstance.submission as Record<string, unknown>
+    const data = submission.data as Record<string, unknown>
+    const organizations = data.organizations as Array<Record<string, unknown>>
+    const logo = organizations[0].logo as Array<Record<string, unknown>>
+
+    expect(Array.isArray(logo)).toBe(true)
+    expect(logo[0].url).toBe("https://example.com/logo.png")
+    expect(logo[0].storage).toBe("base64")
   })
 })

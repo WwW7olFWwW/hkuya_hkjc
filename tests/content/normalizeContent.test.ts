@@ -147,6 +147,40 @@ describe("normalizeContent", function () {
     expect(companyLines[1]).toBe("Chinese Academy of Sciences")
   })
 
+  it("converts string companyLines to array by splitting on newlines", function () {
+    const input = {
+      positions: {
+        fields: {
+          titleZh: "實習崗位",
+          titleEn: "Job Positions",
+          groups: [
+            {
+              location: "北京",
+              description: "測試",
+              positions: [
+                {
+                  companyLines: "中國科學院生態環境研究中心\nChinese Academy of Sciences",
+                  roleLines: "科研實習崗\nResearch Intern",
+                  requirements: "要求一\n要求二",
+                  duties: "工作一\n工作二"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    }
+
+    const output = normalizeContent(input)
+    const groups = output.positions.fields.groups as Array<Record<string, unknown>>
+    const positions = groups[0].positions as Array<Record<string, unknown>>
+
+    expect(positions[0].companyLines).toEqual(["中國科學院生態環境研究中心", "Chinese Academy of Sciences"])
+    expect(positions[0].roleLines).toEqual(["科研實習崗", "Research Intern"])
+    expect(positions[0].requirements).toEqual(["要求一", "要求二"])
+    expect(positions[0].duties).toEqual(["工作一", "工作二"])
+  })
+
   it("fixes broken character arrays in all position string array fields", function () {
     const input = {
       positions: {

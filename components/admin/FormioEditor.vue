@@ -5,9 +5,11 @@ import { POCKETBASE_COLLECTIONS } from "@/lib/pocketbase/collections"
 import { defaultContent } from "@/lib/content/defaultContent"
 import { fetchFormSchema } from "@/lib/formio/schemaStore"
 import { mapSubmissionToContent } from "@/lib/formio/mapSubmission"
+import { mapContentToFormioSubmission } from "@/lib/formio/mapContentToFormio"
 import { resolveFormioFacade } from "@/lib/formio/resolveFormio"
 import { applyFormioAssets } from "@/lib/formio/formioAssets"
 import { loadFormioModule } from "@/lib/formio/loadFormio"
+import { enhanceSchemaForAdmin } from "@/lib/formio/enhanceSchemaForAdmin"
 
 type FormInstance = {
   submission?: unknown
@@ -163,10 +165,10 @@ function extractSubmissionData(submission: unknown) {
 
 async function loadContentFields(slug: string) {
   const baseFields = cloneDefaultFields(slug)
-  templateFields.value = baseFields
-
   const record = await fetchContentRecord(slug)
-  return mergeFields(baseFields, record ? record.fields : null)
+  const mergedFields = mergeFields(baseFields, record ? record.fields : null)
+  templateFields.value = mergedFields
+  return mergedFields
 }
 
 async function loadEditor() {
@@ -185,8 +187,10 @@ async function loadEditor() {
       return
     }
 
+    const enhancedSchema = enhanceSchemaForAdmin(props.slug, schemaRecord.schema as Record<string, unknown>)
     const fields = await loadContentFields(props.slug)
-    await mountForm(schemaRecord.schema as Record<string, unknown>, fields)
+    const submissionData = mapContentToFormioSubmission(props.slug, fields, import.meta.env.BASE_URL || "/")
+    await mountForm(enhancedSchema as Record<string, unknown>, submissionData)
   } catch (error) {
     status.value = formatErrorMessage(error)
   } finally {
@@ -233,21 +237,26 @@ onBeforeUnmount(function () {
 </script>
 
 <template>
-  <div class="section-card p-6 space-y-4">
+  <div class="section-card admin-panel admin-formio p-5 space-y-4">
     <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-      <div>
-        <h3 class="text-lg font-semibold">Content Editor</h3>
-        <p class="text-sm text-slate-500">目前選擇：{{ props.slug }}</p>
+      <div class="space-y-1">
+        <h3 class="text-lg font-semibold text-slate-900">Content Editor</h3>
+        <p class="text-sm text-slate-500">目前區塊：{{ props.slug }}</p>
       </div>
       <div class="flex items-center gap-2">
-        <button class="btn-primary" type="button" @click="handleSave" :disabled="isLoading">
-          儲存內容
+        <button
+          class="admin-action admin-action--primary min-h-[44px]"
+          type="button"
+          @click="handleSave"
+          :disabled="isLoading"
+        >
+          {{ isLoading ? "載入中..." : "儲存內容" }}
         </button>
       </div>
     </div>
 
-    <p v-if="status" class="text-sm text-slate-600">{{ status }}</p>
+    <p v-if="status" class="admin-feedback" aria-live="polite">{{ status }}</p>
 
-    <div ref="formTarget" class="min-h-[420px]" />
+    <div ref="formTarget" class="admin-form-canvas min-h-[460px]" />
   </div>
 </template>

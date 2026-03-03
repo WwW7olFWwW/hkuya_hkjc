@@ -1,17 +1,24 @@
 <template>
   <div class="site-root">
-    <NavBar />
-    <main class="site-main">
+    <NavBar v-if="!isAdminPage" />
+    <main :class="isAdminPage ? 'site-main site-main--admin' : 'site-main'">
       <Content />
     </main>
-    <FooterBar />
+    <FooterBar v-if="!isAdminPage" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { Content } from 'vitepress'
+import { computed } from "vue"
+import { Content, useData } from "vitepress"
 import NavBar from '../../components/navigation/NavBar.vue'
 import FooterBar from '../../components/navigation/FooterBar.vue'
+
+const data = useData()
+
+const isAdminPage = computed(function () {
+  return data.page.value.relativePath === "admin.md"
+})
 </script>
 
 <style scoped>
@@ -24,5 +31,9 @@ import FooterBar from '../../components/navigation/FooterBar.vue'
 .site-main {
   flex: 1;
   padding-top: var(--site-header-height);
+}
+
+.site-main--admin {
+  padding-top: 0;
 }
 </style>

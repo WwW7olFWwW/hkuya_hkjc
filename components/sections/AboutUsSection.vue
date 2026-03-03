@@ -26,7 +26,26 @@ const organizations = computed(function () {
 })
 
 function resolveAsset(path: string) {
-  return withBase(path)
+  const trimmed = path.trim()
+  const normalized = trimmed.toLowerCase()
+  if (
+    normalized.startsWith("http://") ||
+    normalized.startsWith("https://") ||
+    normalized.startsWith("data:") ||
+    normalized.startsWith("blob:")
+  ) {
+    return trimmed
+  }
+
+  if (trimmed.startsWith("/")) {
+    return withBase(trimmed)
+  }
+
+  if (trimmed.indexOf("/") === -1) {
+    return withBase("/images/" + trimmed)
+  }
+
+  return withBase("/" + trimmed)
 }
 
 function getOrganizationClass(index: number) {

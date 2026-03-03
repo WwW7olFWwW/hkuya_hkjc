@@ -11,6 +11,7 @@ import { buildFormioSchemaFromDefault } from "@/lib/formio/schemaGenerator"
 import { resolveFormioFacade } from "@/lib/formio/resolveFormio"
 import { applyFormioAssets } from "@/lib/formio/formioAssets"
 import { loadFormioModule } from "@/lib/formio/loadFormio"
+import { enhanceSchemaForAdmin } from "@/lib/formio/enhanceSchemaForAdmin"
 
 type BuilderInstance = {
   schema?: Record<string, unknown>
@@ -100,7 +101,8 @@ async function loadSchema() {
   try {
     const record = await fetchFormSchema(props.slug)
     hasSavedSchema.value = !!record
-    const schema = record && record.schema ? record.schema : buildDefaultSchema(props.slug)
+    const rawSchema = record && record.schema ? record.schema : buildDefaultSchema(props.slug)
+    const schema = enhanceSchemaForAdmin(props.slug, rawSchema as Record<string, unknown>)
     currentSchema.value = schema
     await mountBuilder(schema)
     await loadHistory()
@@ -148,7 +150,8 @@ async function handleGenerate() {
     }
   }
 
-  const schema = buildFormioSchemaFromDefault(props.slug)
+  const generatedSchema = buildFormioSchemaFromDefault(props.slug)
+  const schema = enhanceSchemaForAdmin(props.slug, generatedSchema as Record<string, unknown>)
   currentSchema.value = schema
   await mountBuilder(schema)
   status.value = "已產生初始 schema，請儲存。"
@@ -195,30 +198,30 @@ onBeforeUnmount(function () {
 </script>
 
 <template>
-  <div class="section-card p-6 space-y-4">
+  <div class="section-card admin-panel admin-formio p-5 space-y-4">
     <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-      <div>
-        <h3 class="text-lg font-semibold">Schema Builder</h3>
+      <div class="space-y-1">
+        <h3 class="text-lg font-semibold text-slate-900">Schema Builder</h3>
         <p class="text-sm text-slate-500">管理表單結構並儲存版本。</p>
       </div>
       <div class="flex items-center gap-2">
         <button
-          class="rounded-md border border-slate-200 px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50"
+          class="admin-action admin-action--secondary min-h-[44px]"
           type="button"
           @click="handleGenerate"
           :disabled="isLoading"
         >
           產生初始 schema
         </button>
-        <button class="btn-primary" type="button" @click="handleSave" :disabled="isLoading">
+        <button class="admin-action admin-action--primary min-h-[44px]" type="button" @click="handleSave" :disabled="isLoading">
           儲存 schema
         </button>
       </div>
     </div>
 
-    <p v-if="status" class="text-sm text-slate-600">{{ status }}</p>
+    <p v-if="status" class="admin-feedback" aria-live="polite">{{ status }}</p>
 
-    <div ref="builderTarget" class="min-h-[520px]" />
+    <div ref="builderTarget" class="admin-form-canvas min-h-[560px]" />
 
     <div class="space-y-2">
       <h4 class="text-sm font-semibold text-slate-700">最近版本</h4>
@@ -227,13 +230,15 @@ onBeforeUnmount(function () {
         <li
           v-for="entry in history"
           :key="entry.id ? entry.id : entry.version"
-          class="flex flex-col gap-2 rounded-lg border border-slate-200 bg-white/80 p-3 sm:flex-row sm:items-center sm:justify-between"
+          class="admin-history-item flex flex-col gap-2 rounded-lg p-3 sm:flex-row sm:items-center sm:justify-between"
         >
           <div class="text-sm">
-            <div class="font-medium">版本：{{ entry.version }}</div>
+            <div class="font-medium text-slate-800">版本：{{ entry.version }}</div>
             <div v-if="entry.created_at" class="text-slate-500">建立時間：{{ entry.created_at }}</div>
           </div>
-          <button class="btn-primary" type="button" @click="handleRollback(entry)">回滾</button>
+          <button class="admin-action admin-action--subtle min-h-[44px]" type="button" @click="handleRollback(entry)">
+            回滾
+          </button>
         </li>
       </ul>
     </div>

@@ -58,6 +58,7 @@ describe("FormioBuilder", function () {
       }
     })
 
-    expect(await screen.findByText("Schema Builder")).toBeTruthy()
+    const heading = await screen.findByText("Schema Builder")
+    expect(heading.closest(".admin-formio")).toBeTruthy()
   })
 })

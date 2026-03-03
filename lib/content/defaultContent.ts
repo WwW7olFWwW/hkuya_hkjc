@@ -64,7 +64,11 @@ export const defaultContent = {
       descriptionZh:
         "本會將根據實習崗位要求而為申請者安排面試（如申請者就讀之學科未能匹配崗位要求，則不獲面試資格）面試詳情將於稍後另行通知。",
       descriptionEn:
-        "We will arrange interviews for applicants based on the requirements of the internship position (if the subject studied by the applicant does not match the job requirements, the applicant will not be eligible for the interview). Interview details will be provided later."
+        "We will arrange interviews for applicants based on the requirements of the internship position (if the subject studied by the applicant does not match the job requirements, the applicant will not be eligible for the interview). Interview details will be provided later.",
+      firstRoundLabel: "第一輪面試日期\nFirst Round Interview Date",
+      firstRoundDate: "29 March 2025",
+      secondRoundLabel: "第二輪面試日期\nSecond Round Interview Date",
+      secondRoundDate: "10 May 2025"
     }
   },
   timeline: {
@@ -110,7 +114,100 @@ export const defaultContent = {
   },
   site_settings: {
     fields: {
-      logoHeight: 48
+      logoHeight: 48,
+      headerLinks: [
+        {
+          titleZh: "立即報名",
+          titleEn: "Apply NOW",
+          href: "https://forms.gle/QZdgDyGfNyfztPLd6",
+          primary: true
+        },
+        {
+          titleZh: "項目簡介",
+          titleEn: "Project Introduction",
+          href: "#project-intro",
+          primary: false
+        },
+        {
+          titleZh: "面試安排",
+          titleEn: "Interview Arrangement",
+          href: "#interview",
+          primary: false
+        },
+        {
+          titleZh: "時間表",
+          titleEn: "Timeline",
+          href: "#project-timeline",
+          primary: false
+        },
+        {
+          titleZh: "實習崗位",
+          titleEn: "Positions",
+          href: "#positions",
+          primary: false
+        },
+        {
+          titleZh: "關於我們",
+          titleEn: "About Us",
+          href: "#about",
+          primary: false
+        },
+        {
+          titleZh: "聯絡我們",
+          titleEn: "Contact Us",
+          href: "#contactus",
+          primary: false
+        }
+      ],
+      footerQuickLinks: [
+        {
+          label: "立即報名",
+          href: "https://forms.gle/QZdgDyGfNyfztPLd6",
+          primary: true
+        },
+        {
+          label: "項目簡介",
+          href: "#project-intro",
+          primary: false
+        },
+        {
+          label: "面試安排",
+          href: "#interview",
+          primary: false
+        },
+        {
+          label: "時間表",
+          href: "#project-timeline",
+          primary: false
+        },
+        {
+          label: "實習崗位",
+          href: "#positions",
+          primary: false
+        },
+        {
+          label: "關於我們",
+          href: "#about",
+          primary: false
+        },
+        {
+          label: "聯絡我們",
+          href: "#contactus",
+          primary: false
+        }
+      ],
+      footerSocialLinks: [
+        {
+          label: "Facebook",
+          href: "https://www.facebook.com/hongkonguya/",
+          icon: "facebook"
+        },
+        {
+          label: "Instagram",
+          href: "https://www.instagram.com/hkuya_ig/",
+          icon: "instagram"
+        }
+      ]
     }
   },
   contact: {

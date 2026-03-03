@@ -1,0 +1,15 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 14
+    },
+    "auditLog": "/home/pklaw/hkuya_hkjc/logs/.b4878f21bcf68a6cd0d1285c0de0b332e6b15465-audit.json",
+    "files": [
+        {
+            "date": 1772508528715,
+            "name": "/home/pklaw/hkuya_hkjc/logs/mcp-puppeteer-2026-03-03.log",
+            "hash": "82bb6e9b933cb4cf6ede94a5f410eb3aa573ae2a47717e9335e80125cfe75861"
+        }
+    ],
+    "hashType": "sha256"
+}

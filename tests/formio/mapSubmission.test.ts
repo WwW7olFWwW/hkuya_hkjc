@@ -63,4 +63,115 @@ describe("mapSubmissionToContent", function () {
     const groups = result.groups as Array<{ positions: Array<{ duties: string[] }> }>
     expect(groups[0].positions[0].duties).toEqual(["x", "y"])
   })
+
+  it("extracts image url from file component submission for string template", function () {
+    const template = {
+      logo: ""
+    }
+
+    const result = mapSubmissionToContent(
+      {
+        logo: [
+          {
+            name: "logo.png",
+            type: "image/png",
+            url: "data:image/png;base64,abc123"
+          }
+        ]
+      },
+      template
+    )
+
+    expect(result.logo).toBe("data:image/png;base64,abc123")
+  })
+
+  it("falls back to template image path when extracted url is bare filename", function () {
+    const template = {
+      logo: "/images/logo.png"
+    }
+
+    const result = mapSubmissionToContent(
+      {
+        logo: [
+          {
+            name: "logo.png",
+            type: "image/png",
+            url: "logo.png"
+          }
+        ]
+      },
+      template
+    )
+
+    expect(result.logo).toBe("/images/logo.png")
+  })
+
+  it("prefers base64 data over bare filename url", function () {
+    const template = {
+      logo: "/images/logo.png"
+    }
+
+    const result = mapSubmissionToContent(
+      {
+        logo: [
+          {
+            name: "logo.png",
+            type: "image/png",
+            url: "logo.png",
+            data: "abc123"
+          }
+        ]
+      },
+      template
+    )
+
+    expect(result.logo).toBe("data:image/png;base64,abc123")
+  })
+
+  it("maps base-prefixed local url back to template path", function () {
+    const template = {
+      logo: "/images/logo.png"
+    }
+
+    const result = mapSubmissionToContent(
+      {
+        logo: [
+          {
+            name: "logo.png",
+            type: "image/png",
+            url: "/hkjc/images/logo.png"
+          }
+        ]
+      },
+      template
+    )
+
+    expect(result.logo).toBe("/images/logo.png")
+  })
+
+  it("uses the latest uploaded file when multiple file records exist", function () {
+    const template = {
+      logo: "/images/logo.png"
+    }
+
+    const result = mapSubmissionToContent(
+      {
+        logo: [
+          {
+            name: "old-logo.png",
+            type: "image/png",
+            url: "/images/logo.png"
+          },
+          {
+            name: "new-logo.webp",
+            type: "image/webp",
+            url: "data:image/webp;base64,newData"
+          }
+        ]
+      },
+      template
+    )
+
+    expect(result.logo).toBe("data:image/webp;base64,newData")
+  })
 })

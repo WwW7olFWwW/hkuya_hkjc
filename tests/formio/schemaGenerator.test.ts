@@ -58,4 +58,16 @@ describe("buildFormioSchemaFromDefault", function () {
     expect(logoHeight && logoHeight.validate && logoHeight.validate.max).toBe(96)
     expect(logoHeight && logoHeight.validate && logoHeight.validate.step).toBe(1)
   })
+
+  it("builds site_settings links as editgrid", function () {
+    const schema = buildFormioSchemaFromDefault("site_settings")
+    const components = schema.components as Component[]
+    const headerLinks = findComponentByKey(components, "headerLinks")
+    const footerQuickLinks = findComponentByKey(components, "footerQuickLinks")
+    const footerSocialLinks = findComponentByKey(components, "footerSocialLinks")
+
+    expect(headerLinks && headerLinks.type).toBe("editgrid")
+    expect(footerQuickLinks && footerQuickLinks.type).toBe("editgrid")
+    expect(footerSocialLinks && footerSocialLinks.type).toBe("editgrid")
+  })
 })

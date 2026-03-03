@@ -60,4 +60,34 @@ describe("ProjectIntro", function () {
     expect(screen.getByText("Eligibility One")).toBeTruthy()
     expect(screen.getByText("Fee One")).toBeTruthy()
   })
+
+  it("accepts data url poster source", function () {
+    const content = buildContent()
+    content.fields.posterUrl = "data:image/png;base64,abc123"
+
+    const rendered = render(ProjectIntro, {
+      props: {
+        content: content
+      }
+    })
+
+    const poster = rendered.container.querySelector('img[alt="實習計劃海報"]') as HTMLImageElement | null
+    expect(poster).toBeTruthy()
+    expect(poster && poster.getAttribute("src")).toBe("data:image/png;base64,abc123")
+  })
+
+  it("maps bare poster filename to /images path", function () {
+    const content = buildContent()
+    content.fields.posterUrl = "poster.webp"
+
+    const rendered = render(ProjectIntro, {
+      props: {
+        content: content
+      }
+    })
+
+    const poster = rendered.container.querySelector('img[alt="實習計劃海報"]') as HTMLImageElement | null
+    expect(poster).toBeTruthy()
+    expect(poster && poster.getAttribute("src")).toBe("/images/poster.webp")
+  })
 })

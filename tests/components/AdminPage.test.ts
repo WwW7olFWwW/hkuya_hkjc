@@ -45,8 +45,11 @@ describe("AdminPage", function () {
       }
     })
 
-    await fireEvent.update(screen.getByLabelText("Email"), "test@example.com")
-    await fireEvent.update(screen.getByLabelText("密碼"), "password")
+    const emailInput = await screen.findByLabelText("Email")
+    const passwordInput = await screen.findByLabelText("密碼")
+
+    await fireEvent.update(emailInput, "test@example.com")
+    await fireEvent.update(passwordInput, "password")
     await fireEvent.click(screen.getByText("登入"))
 
     expect(await screen.findByText("登入失敗")).toBeTruthy()
@@ -65,8 +68,11 @@ describe("AdminPage", function () {
       }
     })
 
-    await fireEvent.update(screen.getByLabelText("Email"), "test@example.com")
-    await fireEvent.update(screen.getByLabelText("密碼"), "password")
+    const emailInput = await screen.findByLabelText("Email")
+    const passwordInput = await screen.findByLabelText("密碼")
+
+    await fireEvent.update(emailInput, "test@example.com")
+    await fireEvent.update(passwordInput, "password")
     await fireEvent.click(screen.getByText("登入"))
 
     expect(await screen.findByText("ContentEditorStub")).toBeTruthy()

@@ -211,18 +211,19 @@ function normalizePositionsFields(fields: UnknownRecord) {
         }
 
         const fieldValue = position[fieldName]
-        if (!Array.isArray(fieldValue)) {
-          continue
-        }
 
-        const fixedArray: string[] = []
-        for (const item of fieldValue) {
-          const fixed = fixBrokenStringArray(item)
-          if (typeof fixed === "string") {
-            fixedArray.push(fixed)
+        if (typeof fieldValue === "string") {
+          position[fieldName] = normalizeStringList(fieldValue)
+        } else if (Array.isArray(fieldValue)) {
+          const fixedArray: string[] = []
+          for (const item of fieldValue) {
+            const fixed = fixBrokenStringArray(item)
+            if (typeof fixed === "string") {
+              fixedArray.push(fixed)
+            }
           }
+          position[fieldName] = fixedArray
         }
-        position[fieldName] = fixedArray
       }
     }
   }

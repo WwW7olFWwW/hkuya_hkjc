@@ -3,6 +3,7 @@ import { ref } from "vue"
 import { defaultContent } from "@/lib/content/defaultContent"
 import { fetchAllFormSchemas, saveFormSchema } from "@/lib/formio/schemaStore"
 import { buildAllFormioSchemasFromDefault } from "@/lib/formio/schemaGenerator"
+import { enhanceSchemaForAdmin } from "@/lib/formio/enhanceSchemaForAdmin"
 import FormioBuilder from "@/components/admin/FormioBuilder.vue"
 import FormioEditor from "@/components/admin/FormioEditor.vue"
 
@@ -81,7 +82,8 @@ async function handleGenerateAllSchemas(mode: "all" | "missing") {
   for (const entry of targets) {
     const version = String(Date.now())
     try {
-      await saveFormSchema(entry.slug, entry.schema as Record<string, unknown>, version)
+      const enhancedSchema = enhanceSchemaForAdmin(entry.slug, entry.schema as Record<string, unknown>)
+      await saveFormSchema(entry.slug, enhancedSchema as Record<string, unknown>, version)
       savedCount += 1
       batchStatus.value = "已儲存 " + savedCount + " / " + targets.length
     } catch (error) {
@@ -100,71 +102,88 @@ async function handleGenerateAllSchemas(mode: "all" | "missing") {
 </script>
 
 <template>
-  <div class="space-y-6">
-    <div class="space-y-2">
-      <h2 class="text-lg font-semibold">內容設定</h2>
-      <p class="text-sm text-slate-500">修改後將立即更新前端。</p>
-    </div>
-
-    <div class="section-card p-4">
-      <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
-          <label for="content-slug" class="text-sm font-medium text-slate-700">內容區塊</label>
-          <select
-            id="content-slug"
-            v-model="activeSlug"
-            class="rounded-md border border-slate-200 px-3 py-2 text-sm"
-          >
-            <option v-for="slug in slugs" :key="slug" :value="slug">{{ slug }}</option>
-          </select>
-        </div>
-        <div class="flex flex-wrap items-center gap-2">
-          <button
-            type="button"
-            class="rounded-md border border-slate-200 px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50"
-            :disabled="isBatchSaving"
-            @click="handleGenerateAllSchemas('all')"
-          >
-            批次產生並儲存
-          </button>
-          <button
-            type="button"
-            class="rounded-md border border-slate-200 px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50"
-            :disabled="isBatchSaving"
-            @click="handleGenerateAllSchemas('missing')"
-          >
-            只建立缺少的
-          </button>
-          <button
-            type="button"
-            class="rounded-md px-3 py-2 text-sm font-medium transition"
-            :class="
-              isActive('editor')
-                ? 'bg-slate-900 text-white'
-                : 'border border-slate-200 text-slate-600 hover:bg-slate-50'
-            "
-            @click="setViewMode('editor')"
-          >
-            Content Editor
-          </button>
-          <button
-            type="button"
-            class="rounded-md px-3 py-2 text-sm font-medium transition"
-            :class="
-              isActive('builder')
-                ? 'bg-slate-900 text-white'
-                : 'border border-slate-200 text-slate-600 hover:bg-slate-50'
-            "
-            @click="setViewMode('builder')"
-          >
-            Schema Builder
-          </button>
-        </div>
+  <div class="space-y-5">
+    <section class="section-card admin-subcard p-5">
+      <div class="space-y-2">
+        <h2 class="text-xl font-semibold text-slate-900">內容設定</h2>
+        <p class="max-w-3xl text-sm leading-7 text-slate-600">
+          左側設定區塊與模式，右側直接編輯內容或 schema。儲存後前台會同步更新。
+        </p>
       </div>
-      <p v-if="batchStatus" class="mt-3 text-sm text-slate-600">{{ batchStatus }}</p>
-    </div>
+    </section>
 
-    <FormioEditor v-if="viewMode === 'editor'" :slug="activeSlug" />
-    <FormioBuilder v-else :slug="activeSlug" />
+    <section class="admin-workspace section-card admin-card p-4">
+      <div class="admin-workspace-grid">
+        <aside class="admin-workspace-side space-y-4">
+          <div class="admin-side-block space-y-2">
+            <label for="content-slug" class="admin-label">內容區塊</label>
+            <select id="content-slug" v-model="activeSlug" class="admin-input w-full text-sm">
+              <option v-for="slug in slugs" :key="slug" :value="slug">{{ slug }}</option>
+            </select>
+            <p class="admin-status-chip text-sm">
+              目前區塊：<span class="font-semibold text-slate-800">{{ activeSlug }}</span>
+            </p>
+          </div>
+
+          <div class="admin-side-block space-y-2">
+            <p class="admin-side-title">工作模式</p>
+            <div class="admin-tabs admin-tabs--stack">
+              <button
+                type="button"
+                class="h-11 w-full"
+                :class="isActive('editor') ? 'admin-tab admin-tab--active' : 'admin-tab'"
+                @click="setViewMode('editor')"
+              >
+                Content Editor
+              </button>
+              <button
+                type="button"
+                class="h-11 w-full"
+                :class="isActive('builder') ? 'admin-tab admin-tab--active' : 'admin-tab'"
+                @click="setViewMode('builder')"
+              >
+                Schema Builder
+              </button>
+            </div>
+          </div>
+
+          <div class="admin-side-block space-y-2">
+            <p class="admin-side-title">Schema 工具</p>
+            <button
+              type="button"
+              class="admin-action admin-action--secondary w-full"
+              :disabled="isBatchSaving"
+              @click="handleGenerateAllSchemas('all')"
+            >
+              批次產生並儲存
+            </button>
+            <button
+              type="button"
+              class="admin-action admin-action--subtle w-full"
+              :disabled="isBatchSaving"
+              @click="handleGenerateAllSchemas('missing')"
+            >
+              只建立缺少的
+            </button>
+          </div>
+
+          <p v-if="batchStatus" class="admin-feedback" aria-live="polite">{{ batchStatus }}</p>
+        </aside>
+
+        <section class="admin-workspace-main space-y-4">
+          <div class="admin-main-head">
+            <h3 class="text-base font-semibold text-slate-900">
+              {{ isActive('editor') ? "Content Editor" : "Schema Builder" }}
+            </h3>
+            <p class="text-sm text-slate-500">
+              {{ isActive('editor') ? "編輯並儲存內容資料。" : "管理表單結構與歷史版本。" }}
+            </p>
+          </div>
+
+          <FormioEditor v-if="viewMode === 'editor'" :slug="activeSlug" />
+          <FormioBuilder v-else :slug="activeSlug" />
+        </section>
+      </div>
+    </section>
   </div>
 </template>

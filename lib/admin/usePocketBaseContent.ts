@@ -2,6 +2,7 @@ import { ref, type Ref } from "vue"
 import { getPocketBaseClient } from "@/lib/pocketbase/client"
 import { POCKETBASE_COLLECTIONS } from "@/lib/pocketbase/collections"
 import { normalizeContent } from "@/lib/content/normalizeContent"
+import { defaultContent } from "@/lib/content/defaultContent"
 import type { ContentSlug } from "./contentTypes"
 
 interface ContentEditorState {
@@ -14,7 +15,7 @@ interface ContentEditorState {
 
 export function usePocketBaseContent(slug: ContentSlug) {
   const state: Ref<ContentEditorState> = ref({
-    fields: {},
+    fields: defaultContent[slug].fields,
     loading: false,
     saving: false,
     error: null,

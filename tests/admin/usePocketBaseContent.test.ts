@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest"
 import { usePocketBaseContent } from "../../lib/admin/usePocketBaseContent"
+import { defaultContent } from "../../lib/content/defaultContent"
 
 vi.mock("@/lib/pocketbase/client", function () {
   return {
@@ -12,10 +13,10 @@ describe("usePocketBaseContent", function () {
     vi.clearAllMocks()
   })
 
-  it("initializes with empty state", function () {
+  it("initializes with default content", function () {
     const { state } = usePocketBaseContent("contact")
 
-    expect(state.value.fields).toEqual({})
+    expect(state.value.fields).toEqual(defaultContent.contact.fields)
     expect(state.value.loading).toBe(false)
     expect(state.value.saving).toBe(false)
     expect(state.value.error).toBe(null)

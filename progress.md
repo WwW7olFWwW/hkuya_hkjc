@@ -550,3 +550,24 @@
   - 驗證：PocketBase (200)、Admin (200)、主站 (200)
 - **里程碑**：FormKit 遷移完全完成，所有編輯器在生產環境正常工作！
 
+## 2026-03-04（修復 FormKit list null/undefined 值錯誤）
+- 問題：生產環境出現運行時錯誤「Cannot set -1 to non array value: undefined」
+- 影響：用戶點擊編輯器時 FormKit 崩潰，無法正常使用
+- 根因分析：
+  - 使用 systematic-debugging 流程定位問題
+  - 發現 `normalizeContent` 合併邏輯中的缺陷
+  - 當 PocketBase 字段存在但值為 `null`/`undefined` 時，會直接使用該值
+  - FormKit `list` 類型期望數組，收到 `undefined` 導致錯誤
+- 修復方案：
+  - 修改 `lib/content/normalizeContent.ts` 合併邏輯
+  - 在合併時檢查值是否為 `null`/`undefined`
+  - 如果是，則使用 `defaultContent` 的默認值（空數組）
+- 驗證：
+  - `npm test` 全部通過（29 files / 65 tests）
+  - `npm run docs:build` 成功（55.38s）
+- 部署：
+  - 備份：`/var/www/hkuya.org/hkjc.bak-20260304174323`
+  - 部署到：`/var/www/hkuya.org/hkjc`
+  - 驗證：PocketBase (200)、Admin (200)、主站 (200)
+- **里程碑**：FormKit 編輯器完全穩定，處理所有邊界情況！
+

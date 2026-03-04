@@ -15,6 +15,19 @@ async function handleSave() {
     console.error("儲存失敗", error)
   }
 }
+
+function handlePosterUpload(event: Event) {
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+  if (!file) return
+
+  const reader = new FileReader()
+  reader.onload = function (e) {
+    const dataUrl = e.target?.result as string
+    state.fields.posterUrl = dataUrl
+  }
+  reader.readAsDataURL(file)
+}
 </script>
 
 <template>
@@ -31,7 +44,10 @@ async function handleSave() {
       <FormKit type="text" name="subtitleEn" label="副標題（英文）" />
       <FormKit type="textarea" name="descriptionZh" label="描述（中文）" :rows="4" />
       <FormKit type="textarea" name="descriptionEn" label="描述（英文）" :rows="4" />
-      <FormKit type="text" name="posterUrl" label="海報圖片路徑" />
+      <div class="space-y-2">
+        <FormKit type="text" name="posterUrl" label="海報圖片路徑或 Base64" />
+        <input type="file" accept="image/*" @change="handlePosterUpload" class="admin-input text-sm" />
+      </div>
 
       <FormKit type="repeater" name="infoCards" label="資訊卡片"
         add-label="+ 新增卡片" :min="1">
@@ -40,6 +56,11 @@ async function handleSave() {
         <FormKit type="text" name="contentZh" label="內容（中文）" />
         <FormKit type="text" name="contentEn" label="內容（英文）" />
       </FormKit>
+
+      <FormKit type="textarea" name="eligibilityZh" label="申請資格（中文，每行一項）" :rows="3" />
+      <FormKit type="textarea" name="eligibilityEn" label="申請資格（英文，每行一項）" :rows="3" />
+      <FormKit type="textarea" name="feeZh" label="費用說明（中文，每行一項）" :rows="2" />
+      <FormKit type="textarea" name="feeEn" label="費用說明（英文，每行一項）" :rows="2" />
     </FormKit>
 
     <div class="mt-4 flex gap-3">

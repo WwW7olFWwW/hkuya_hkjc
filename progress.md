@@ -492,3 +492,23 @@
   - `npm run docs:build` 成功（39.60s，比之前快 ~30%）
 - **里程碑**：Formio 完全移除，代碼淨減少 ~2000 行！
 
+## 2026-03-04（Phase 12: 部署與驗證）
+- Git commit：`feat: 完成 Formio 到 FormKit 遷移`（57 files, +1782/-3855）
+- 部署執行：
+  - 備份舊版為 `/var/www/hkuya.org/hkjc.bak-20260304155335`
+  - 新版部署到 `/var/www/hkuya.org/hkjc`
+- 驗證：
+  - `https://hkuya.org/pb/api/health` 回 200
+  - `https://www.hkuya.org/hkjc/` 回 200
+  - `https://www.hkuya.org/hkjc/admin.html` 回 200
+- **里程碑**：FormKit 遷移完成並成功部署！
+
+## 2026-03-04（後續優化）
+- 補充 ProjectIntro 缺失字段：
+  - `components/admin/editors/ProjectIntroEditor.vue` 新增 eligibilityZh/En, feeZh/En（textarea，每行一項）
+- 實現圖片上傳功能（最小化方案）：
+  - `AboutUsEditor.vue` 新增 handleLogoUpload 函數和 file input
+  - `ProjectIntroEditor.vue` 新增 handlePosterUpload 函數和 file input
+  - 支援選擇圖片文件並自動轉換為 Base64 存入對應字段
+- 驗證：`npm test` 全部通過（29 files / 65 tests）
+

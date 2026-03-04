@@ -15,6 +15,21 @@ async function handleSave() {
     console.error("儲存失敗", error)
   }
 }
+
+function handleLogoUpload(event: Event, index: number) {
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+  if (!file) return
+
+  const reader = new FileReader()
+  reader.onload = function (e) {
+    const dataUrl = e.target?.result as string
+    if (state.fields.organizations && state.fields.organizations[index]) {
+      state.fields.organizations[index].logo = dataUrl
+    }
+  }
+  reader.readAsDataURL(file)
+}
 </script>
 
 <template>
@@ -32,7 +47,10 @@ async function handleSave() {
         add-label="+ 新增機構" :min="1">
         <FormKit type="text" name="role" label="角色" />
         <FormKit type="text" name="name" label="名稱" />
-        <FormKit type="text" name="logo" label="Logo 路徑" />
+        <div class="space-y-2">
+          <FormKit type="text" name="logo" label="Logo 路徑或 Base64" />
+          <input type="file" accept="image/*" @change="handleLogoUpload($event, $index)" class="admin-input text-sm" />
+        </div>
         <FormKit type="url" name="url" label="網址" />
       </FormKit>
     </FormKit>

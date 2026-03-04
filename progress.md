@@ -571,3 +571,24 @@
   - 驗證：PocketBase (200)、Admin (200)、主站 (200)
 - **里程碑**：FormKit 編輯器完全穩定，處理所有邊界情況！
 
+## 2026-03-04（修復 FormKit list 初始化 undefined 錯誤）
+- 問題：生產環境持續出現「Cannot set -1 to non array value: undefined」錯誤
+- 影響：用戶點擊編輯器時 FormKit 仍然崩潰
+- 根因分析：
+  - 第一次修復只處理了 PocketBase 數據載入後的情況
+  - 但 `usePocketBaseContent` 初始化時 `state.fields` 為空對象 `{}`
+  - FormKit 在數據載入前就嘗試綁定，收到 `undefined` 值導致崩潰
+- 修復方案：
+  - 修改 `lib/admin/usePocketBaseContent.ts`
+  - 初始化時使用 `defaultContent[slug].fields` 而非空對象
+  - 確保 FormKit 始終綁定到有效的數組值
+  - 更新測試以反映新的初始化行為
+- 驗證：
+  - `npm test` 全部通過（29 files / 65 tests）
+  - `npm run docs:build` 成功（58.89s）
+- 部署：
+  - 備份：`/var/www/hkuya.org/hkjc.bak-20260304175351`
+  - 部署到：`/var/www/hkuya.org/hkjc`
+  - 驗證：PocketBase (200)、Admin (200)、主站 (200)
+- **里程碑**：FormKit 初始化問題徹底解決，編輯器可立即使用！
+

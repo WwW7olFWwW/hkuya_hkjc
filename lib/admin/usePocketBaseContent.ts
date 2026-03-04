@@ -16,7 +16,7 @@ interface ContentEditorState {
 export function usePocketBaseContent(slug: ContentSlug) {
   const state: Ref<ContentEditorState> = ref({
     fields: defaultContent[slug].fields,
-    loading: false,
+    loading: true,
     saving: false,
     error: null,
     dirty: false

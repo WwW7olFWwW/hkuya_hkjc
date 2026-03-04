@@ -17,7 +17,7 @@ describe("usePocketBaseContent", function () {
     const { state } = usePocketBaseContent("contact")
 
     expect(state.value.fields).toEqual(defaultContent.contact.fields)
-    expect(state.value.loading).toBe(false)
+    expect(state.value.loading).toBe(true)
     expect(state.value.saving).toBe(false)
     expect(state.value.error).toBe(null)
     expect(state.value.dirty).toBe(false)

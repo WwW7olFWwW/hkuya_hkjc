@@ -592,3 +592,25 @@
   - 驗證：PocketBase (200)、Admin (200)、主站 (200)
 - **里程碑**：FormKit 初始化問題徹底解決，編輯器可立即使用！
 
+## 2026-03-04（修復 FormKit 渲染時機導致狀態混亂）
+- 問題：生產環境錯誤持續存在，即使清除緩存後仍然出現
+- 影響：用戶點擊編輯器時 FormKit 崩潰
+- 根因分析：
+  - 前三次修復未能解決問題
+  - 深入分析發現：`convertArraysToStrings()` 在 FormKit 已綁定數據後修改數據結構
+  - FormKit list 期望管理穩定的數組結構，但數據轉換破壞了內部狀態追蹤
+  - 當用戶點擊時，FormKit 試圖操作已被修改的數據，導致崩潰
+- 修復方案：
+  - 添加 `formReady` 標誌控制 FormKit 渲染時機
+  - 確保 `load()` 和 `convertArraysToStrings()` 完成後才渲染表單
+  - 修改文件：PositionsEditor, ProjectIntroEditor, TimelineEditor
+  - 使用 `v-else-if="formReady"` 延遲 FormKit 渲染
+- 驗證：
+  - `npm test` 全部通過（29 files / 65 tests）
+  - `npm run docs:build` 成功（61.88s）
+- 部署：
+  - 備份：`/var/www/hkuya.org/hkjc.bak-20260304180615`
+  - 部署到：`/var/www/hkuya.org/hkjc`
+  - 驗證：PocketBase (200)、Admin (200)、主站 (200)
+- **里程碑**：FormKit 渲染時機問題解決，等待用戶確認錯誤是否消失！
+

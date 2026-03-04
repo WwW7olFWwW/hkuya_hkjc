@@ -788,63 +788,6 @@ details[open] > .position-summary::after {
     box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
   }
 
-  .admin-formio .form-control:focus,
-  .admin-formio .form-select:focus {
-    border-color: rgba(3, 33, 105, 0.65);
-    box-shadow: 0 0 0 3px rgba(3, 33, 105, 0.16);
-  }
-
-  .admin-formio .formio-component .form-label {
-    font-weight: 600;
-    color: #1e293b;
-    margin-bottom: 0.35rem;
-  }
-
-  .admin-formio .formio-component .help-block,
-  .admin-formio .formio-component .text-muted {
-    margin-top: 0.35rem;
-    color: #64748b !important;
-    font-size: 0.8rem;
-    line-height: 1.45;
-  }
-
-  .admin-formio .formio-component .card {
-    border: 1px solid rgba(148, 163, 184, 0.28);
-    box-shadow: none;
-  }
-
-  .admin-formio .formio-component .card .card-header {
-    background: rgba(248, 250, 252, 0.92);
-    border-bottom: 1px solid rgba(148, 163, 184, 0.22);
-    font-weight: 600;
-    color: #0f172a;
-  }
-
-  .admin-formio .formio-component textarea.form-control {
-    width: 100%;
-    min-width: 38rem;
-    max-width: 100%;
-    resize: both;
-  }
-
-  .admin-formio .formio-component-companyLines textarea.form-control,
-  .admin-formio .formio-component-roleLines textarea.form-control,
-  .admin-formio .formio-component-requirements textarea.form-control,
-  .admin-formio .formio-component-duties textarea.form-control {
-    min-height: 7.5rem;
-    line-height: 1.55;
-  }
-
-  /* Form.io EditGrid row action buttons render icons only by default. Show labels in admin. */
-  .admin-formio .btn.editRow::after {
-    content: "編輯";
-    margin-left: 0.35rem;
-  }
-
-  .admin-formio .btn.removeRow::after {
-    content: "刪除";
-    margin-left: 0.35rem;
-  }
 
   @media (prefers-reduced-motion: reduce) {
     .admin-action,
@@ -891,8 +834,5 @@ details[open] > .position-summary::after {
   }
 
   @media (max-width: 1024px) {
-    .admin-formio .formio-component textarea.form-control {
-      min-width: 100%;
-    }
   }
 }

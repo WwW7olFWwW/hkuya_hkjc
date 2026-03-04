@@ -315,3 +315,180 @@
     - `https://www.hkuya.org/hkjc/admin.html` 200
     - `https://www.hkuya.org/hkjc/images/logo.png` 200
     - `https://www.hkuya.org/hkjc/images/poster.webp` 200
+
+## 2026-03-03（Formio 遷移方案規劃）
+- 使用者反映 Formio 問題多，要求制定替代方案。
+- 分析 Formio 核心問題：
+  - 數據格式不一致（字符串 vs 數組轉換）
+  - Bundle 過大（~500KB）
+  - 維護成本高（~1500 行映射代碼）
+  - 集成問題（動態加載、SSR、hydration）
+- 研究替代方案：
+  - 自建 Vue 編輯器（推薦）
+  - Formkit / VeeValidate
+  - 完整 CMS（Directus/Strapi）
+- 制定詳盡遷移計劃：
+  - 9 個階段，漸進式遷移
+  - 從簡單到複雜（Contact → Positions）
+  - 預計 5 天完成
+  - 預期收益：-600KB bundle, -500 行代碼
+- 創建規劃文件：
+  - task_plan.md：詳細的階段計劃和成功標準
+  - findings.md：技術研究和設計決策
+  - progress.md：本次規劃記錄
+
+## 2026-03-04（FormKit 替代方案詳細規劃）
+- 使用者要求撰寫詳盡的 FormKit 替代方案。
+- 透過 Context7 查詢 FormKit 官方文檔：
+  - Schema 驅動表單生成（JSON-compatible）
+  - Repeater 支援動態陣列編輯（可嵌套）
+  - 內建驗證 + i18n（zh/zh-TW）
+  - Tailwind CSS 整合
+  - Bundle size ~28KB（vs Formio ~500KB）
+- 盤點現有 Formio 代碼：
+  - `lib/formio/` 10 個文件，1471 行
+  - `components/admin/Formio*.vue` 2 個文件，508 行
+  - `components/admin/ContentEditor.vue` 189 行
+  - 合計 2168 行待移除
+- 完成 FormKit 方案文檔：
+  - 更新 `task_plan.md`：12 階段詳細計劃
+    - Phase 1-2: FormKit 安裝與基礎設施
+    - Phase 3-9: 7 個編輯器逐一實作
+    - Phase 10-12: 整合、Formio 移除、部署
+  - 關鍵設計決策：
+    - 數據流簡化：PocketBase ↔ FormKit v-model（零映射）
+    - 自訂 `image-upload` input 消除 file array 問題
+    - Positions 三層嵌套用 FormKit repeater 處理
+    - VitePress enhanceApp client-only 載入避免 SSR 衝突
+  - 預期效果：
+    - 代碼淨減少 ~968 行（新增 ~1200，移除 ~2168）
+    - Bundle 減少 ~472KB（新增 28KB，移除 500KB）
+    - 消除數據格式不一致問題
+- 更新 `findings.md`：新增 FormKit 研究章節
+  - FormKit vs Formio 關鍵差異
+  - VitePress 整合方式
+  - 免費版限制評估
+  - 工作量對比（FormKit vs 自建 Vue）
+
+## 2026-03-04（Phase 1: FormKit 安裝與基礎配置）
+- 安裝 FormKit 依賴：
+  - `npm install @formkit/vue @formkit/i18n`（新增 10 packages）
+- 創建配置文件：
+  - `lib/admin/formkitConfig.ts`：zh locale + admin-* class 映射
+  - `styles/formkit-admin.css`：FormKit 基礎樣式
+- 整合到 VitePress：
+  - 更新 `.vitepress/theme/index.ts`：client-only 動態載入 FormKit plugin
+  - 避免 SSR 衝突（`typeof window !== "undefined"` 判斷）
+- 驗證：
+  - `npm test` 全部通過（34 files / 97 tests）
+  - `npm run docs:build` 成功（72.99s）
+  - FormKit 已可在 client 端使用
+
+## 2026-03-04（Phase 2: 共用工具與類型定義）
+- 創建類型定義 `lib/admin/contentTypes.ts`：
+  - 7 個內容區塊的 TypeScript 介面
+  - ContactFields, InterviewFields, AboutUsFields, ProjectIntroFields
+  - PositionsFields（含 Position, PositionGroup）
+  - TimelineFields（含 TimelineStep, TimelineNote）
+  - SiteSettingsFields（含 HeaderLink, FooterQuickLink, FooterSocialLink）
+  - ContentSlug 和 ContentFields 聯合類型
+- 創建 PocketBase composable `lib/admin/usePocketBaseContent.ts`：
+  - load(): 從 PocketBase 載入並 normalize
+  - save(): 寫回 PocketBase
+  - reset(): 重置為原始值
+  - state: fields, loading, saving, error, dirty
+- 創建測試 `tests/admin/usePocketBaseContent.test.ts`
+- 驗證：測試通過（1 file / 1 test）
+- 註：image-upload 自訂 input 延後至 Phase 5 實作
+
+## 2026-03-04（Phase 3: Contact 編輯器）
+- 創建 `components/admin/editors/ContactEditor.vue`（38 行）：
+  - 使用 `usePocketBaseContent("contact")` composable
+  - FormKit 表單：titleZh, titleEn, email, tel
+  - 載入/儲存/錯誤處理
+- 創建測試 `tests/admin/editors/ContactEditor.test.ts`
+- 驗證：
+  - 測試通過（1 file / 1 test）
+  - `npm run docs:build` 成功（78.96s）
+  - 第一個 FormKit 編輯器驗證成功
+
+## 2026-03-04（Phase 4: Interview 編輯器）
+- 創建 `components/admin/editors/InterviewEditor.vue`（44 行）：
+  - 8 個字段：titleZh/En, descriptionZh/En, firstRound/secondRound Label/Date
+  - 使用 textarea 處理多行描述
+- 創建測試 `tests/admin/editors/InterviewEditor.test.ts`
+- 驗證：兩個編輯器測試全部通過（2 files / 2 tests）
+
+## 2026-03-04（Phase 5: AboutUs 編輯器）
+- 創建 `components/admin/editors/AboutUsEditor.vue`（46 行）：
+  - 使用 FormKit `repeater` 處理 organizations 陣列
+  - repeater 字段：role, name, logo, url
+  - 驗證 FormKit repeater 嵌套功能
+  - 註：logo 暫用 text input（路徑），圖片上傳功能可後續優化
+- 創建測試 `tests/admin/editors/AboutUsEditor.test.ts`
+- 驗證：三個編輯器測試全部通過（3 files / 3 tests）
+
+## 2026-03-04（Phase 6: ProjectIntro 編輯器）
+- 創建 `components/admin/editors/ProjectIntroEditor.vue`（52 行）：
+  - 基本字段：titleZh/En, subtitleZh/En, descriptionZh/En, posterUrl
+  - 使用 repeater 處理 infoCards 陣列
+  - 註：posterUrl 暫用 text input，eligibility/fee 字段待補充
+- 創建測試 `tests/admin/editors/ProjectIntroEditor.test.ts`
+- 驗證：測試通過（1 file / 1 test）
+
+## 2026-03-04（Phase 7: Positions 編輯器）
+- 創建 `components/admin/editors/PositionsEditor.vue`（64 行）：
+  - 三層嵌套結構：titleZh/En → groups[] → positions[]
+  - 第一層 repeater：groups（location, description）
+  - 第二層 repeater：positions（companyLines, roleLines, requirements, duties）
+  - 使用 textarea 處理多行字段（每行一項）
+  - 驗證 FormKit 支援兩層嵌套 repeater
+- 創建測試 `tests/admin/editors/PositionsEditor.test.ts`
+- 驗證：測試通過（1 file / 1 test）
+
+## 2026-03-04（Phase 8: Timeline 編輯器）
+- 創建 `components/admin/editors/TimelineEditor.vue`（54 行）：
+  - 兩組 repeater：steps[] 和 notes[]
+  - steps 字段：date, content (textarea), highlight (checkbox)
+  - notes 字段：icon, title, content (textarea)
+  - content 使用 textarea 處理多行（每行一項）
+- 創建測試 `tests/admin/editors/TimelineEditor.test.ts`
+- 驗證：測試通過（1 file / 1 test）
+
+## 2026-03-04（Phase 9: SiteSettings 編輯器）
+- 創建 `components/admin/editors/SiteSettingsEditor.vue`（62 行）：
+  - logoHeight: number 字段
+  - 三組 repeater：headerLinks, footerQuickLinks, footerSocialLinks
+  - 使用 checkbox 處理 primary 布林值
+- 創建測試 `tests/admin/editors/SiteSettingsEditor.test.ts`
+- 驗證：所有 7 個編輯器測試全部通過（7 files / 7 tests）
+- **里程碑**：所有 7 個 FormKit 編輯器創建完成！
+
+## 2026-03-04（Phase 10: 整合到 AdminPage）
+- 重構 `components/admin/ContentEditor.vue`（58 行，原 189 行）：
+  - 移除所有 Formio 相關 import
+  - Import 所有 7 個 FormKit 編輯器
+  - 創建 editorMap 映射（slug → 編輯器組件）
+  - 使用 computed + component :is 動態渲染編輯器
+  - 移除 builder mode 和批次 schema 生成功能（FormKit 不需要）
+  - 簡化 UI，只保留 slug 選擇器
+- 驗證：`npm run docs:build` 成功（58.27s）
+- **里程碑**：FormKit 編輯器已完全整合到 admin 系統！
+
+## 2026-03-04（Phase 11: Formio 完全移除）
+- 刪除 Formio 組件和代碼：
+  - `components/admin/FormioEditor.vue`（262 行）
+  - `components/admin/FormioBuilder.vue`（246 行）
+  - `lib/formio/` 目錄（10 files, 1471 行）
+  - `public/formio/` 目錄（靜態資源）
+  - `tests/formio/` 目錄（測試文件）
+  - `tests/components/FormioEditor.test.ts`
+  - `tests/components/FormioBuilder.test.ts`
+  - `tests/components/ContentEditor.test.ts`（過時測試）
+- 卸載依賴：`npm uninstall @formio/js`（移除 65 packages）
+- 清理樣式：刪除 `styles/global.css` 中所有 `.admin-formio` 相關樣式
+- 驗證：
+  - `npm test` 全部通過（29 files / 65 tests）
+  - `npm run docs:build` 成功（39.60s，比之前快 ~30%）
+- **里程碑**：Formio 完全移除，代碼淨減少 ~2000 行！
+

@@ -43,3 +43,102 @@
 - `ProjectIntro` 與 `AboutUs` 同樣需要處理外部/data/blob 圖片來源；若一律 `withBase()`，上傳後的 `data:` 圖片會無法顯示。
 - 實際線上錯誤 `t.files.forEach is not a function` 的直接成因：Formio `file` 欄位收到既有內容的 string 值（例如 logo URL），而非 file value array。
 - 解法是「只在載入 editor submission 前」做值轉換：string URL → `[{name,type,url,storage}]`；儲存時仍沿用 `mapSubmissionToContent` 回寫為字串，保持資料庫相容。
+
+## 2026-03-03: Formio 遷移研究
+
+### Formio 核心問題
+1. **數據格式不一致**：PocketBase 保存字符串（換行符分隔），Formio 期望數組，需要複雜映射
+2. **Bundle 過大**：formio.full.min.js ~500KB，導致 chunk size warning
+3. **維護成本高**：lib/formio/ 目錄約 1500+ 行代碼僅用於處理集成問題
+4. **集成問題**：動態加載、字體路徑、hydration mismatch 風險
+
+### 內容區塊複雜度分析
+- **簡單**（Contact, Interview）：純文本字段，無嵌套
+- **中等**（AboutUs, ProjectIntro, SiteSettings）：包含圖片上傳、動態數組
+- **複雜**（Timeline）：嵌套數組（steps/notes 包含 content[]）
+- **最複雜**（Positions）：三層嵌套（groups → positions → string arrays）
+
+### 替代方案：自建 Vue 編輯器
+**優勢**：
+- 無第三方依賴，bundle size 減少 ~600KB
+- 數據流簡單直接，無需映射層
+- 使用 shadcn-vue，UI 一致性好
+- 類型安全，易於維護
+
+**技術棧**：
+- Vue 3 Composition API
+- shadcn-vue UI 組件
+- PocketBase SDK 直接對接
+- TypeScript 嚴格類型
+
+**共用組件設計**：
+- EditorLayout.vue（統一布局）
+- ArrayField.vue（動態數組編輯）
+- ImageUpload.vue（圖片上傳）
+- usePocketBaseContent.ts（數據操作）
+
+**遷移策略**：
+- 漸進式遷移，一次一個編輯器
+- 保持 PocketBase 數據結構不變
+- 測試驅動開發
+
+**工作量評估**：
+- 7 個編輯器，每個 100-200 行
+- 共用組件和工具函數 ~300 行
+- 總計約 1000-1500 行新代碼
+- 預計 5 天完成
+
+**預期收益**：
+- Bundle size: -600KB
+- 代碼行數: -500 行（淨減少）
+- 維護成本大幅降低
+- 性能提升（無動態加載開銷）
+
+## 2026-03-04: FormKit 替代方案研究
+
+### FormKit 核心特性
+1. **Schema 驅動**：支援 JSON-compatible schema 生成表單，與 Formio 類似但格式更簡潔
+   - `{ $formkit: "text", name: "field", label: "Label" }`
+   - 支援條件渲染、動態數據、HTML 元素混合
+2. **Repeater（重複群組）**：原生支援 `type="repeater"` 動態陣列編輯
+   - 可嵌套使用（groups → positions 二層嵌套）
+   - 內建增/刪/排序按鈕，可自訂文案
+   - **需驗證**：是否支援 3 層嵌套（positions 結構需要）
+3. **驗證**：內建 30+ 驗證規則（required, email, url 等）+ 自訂規則
+4. **i18n**：原生支援 `zh`（簡體）/ `zh-TW`（繁體）locale
+5. **主題**：支援 Tailwind CSS 整合（`@formkit/tailwindcss`），也可自訂 class
+6. **Bundle size**：core + vue ~28KB（vs Formio ~500KB）
+
+### FormKit vs Formio 關鍵差異
+- **數據格式**：FormKit v-model 直接綁定 JS 物件，無需中間映射層
+  - Formio 需要 `mapSubmission.ts`（228 行）+ `mapContentToFormio.ts`（195 行）做格式轉換
+  - FormKit 的 v-model 值 = PocketBase 儲存格式，零轉換
+- **File/Image**：FormKit 無內建 base64 file input，但可自訂 input
+  - 自訂 `image-upload` input：接收 string → 顯示預覽 → 上傳後 emit data:URI string
+  - 消除了 Formio 的 `file array ↔ string` 映射問題（`t.files.forEach is not a function`）
+- **SSR 安全**：FormKit plugin 可 client-only 註冊，不影響 VitePress SSR
+- **EditGrid 替代**：FormKit `repeater` 直接替代 Formio EditGrid，且 API 更簡單
+
+### FormKit 在 VitePress 中的整合方式
+- 透過 `enhanceApp()` 的 `app.use(formkitPlugin, defaultConfig(...))` 註冊
+- 必須判斷 `typeof window !== "undefined"` 避免 SSR 載入
+- 編輯器組件外層需用 `<ClientOnly>` 包裹
+- admin.md 路由已移除 SSR NavBar/FooterBar，減少 hydration 衝突
+
+### FormKit 免費版限制
+- `repeater` 在免費版可用（不是 Pro 限定）
+- `file` input 在免費版可用
+- Pro 版主要增加：預建 UI themes、Floating Labels、Autocomplete、Multi-step 等
+- 本專案不需要 Pro 功能
+
+### 工作量評估（FormKit 方案 vs 自建 Vue 方案）
+| | FormKit 方案 | 自建 Vue 方案 |
+|---|---|---|
+| 共用組件 | ~100 行（config + image-upload） | ~300 行（ArrayField + ImageUpload + EditorLayout） |
+| 7 個編輯器 | ~700 行（FormKit 處理布局/驗證） | ~1000 行（需自建所有 UI） |
+| 新增測試 | ~400 行 | ~500 行 |
+| 新增總代碼 | ~1200 行 | ~1800 行 |
+| 淨減少代碼 | ~968 行 | ~368 行 |
+| 新增依賴 | @formkit/vue (~28KB) | 無 |
+
+**結論**：FormKit 方案比自建方案少寫約 600 行代碼，且 repeater/validation/i18n 由框架處理，長期維護成本更低。

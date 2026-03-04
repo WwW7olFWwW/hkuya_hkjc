@@ -614,3 +614,25 @@
   - 驗證：PocketBase (200)、Admin (200)、主站 (200)
 - **里程碑**：FormKit 渲染時機問題解決，等待用戶確認錯誤是否消失！
 
+## 2026-03-04（修復 FormKit 初始化時序問題 - 最終方案）
+- 問題：生產環境錯誤仍然存在，formReady 方案未能完全解決
+- 影響：用戶點擊編輯器時 FormKit 崩潰
+- 根因分析：
+  - formReady 方案只處理了部分編輯器（Positions, ProjectIntro, Timeline）
+  - 但 SiteSettingsEditor 等其他編輯器未應用修復
+  - 更深層問題：`usePocketBaseContent` 初始化時 `loading=false`
+  - 導致 FormKit 在 `load()` 完成前就開始渲染
+- 最終修復方案：
+  - 修改 `lib/admin/usePocketBaseContent.ts`
+  - 將初始 `loading` 從 `false` 改為 `true`
+  - 確保所有編輯器都會等待數據加載完成後才渲染 FormKit
+  - 這是一個更根本、更簡單的解決方案
+- 驗證：
+  - 更新測試預期 `loading` 初始值為 `true`
+  - `npm test` 全部通過（29 files / 65 tests）
+- 部署：
+  - 複製 lib 和 tests 目錄到 `/var/www/hkuya.org/hkjc`
+  - 驗證：PocketBase (200)
+- Git commit：`fix: 修復 FormKit 初始化時序問題，將 loading 初始值改為 true`
+- **里程碑**：從根本解決 FormKit 初始化問題，等待用戶確認！
+

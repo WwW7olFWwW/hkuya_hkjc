@@ -47,7 +47,7 @@ const currentEditor = computed(function () {
           </select>
         </div>
 
-        <component :is="currentEditor" v-if="currentEditor" />
+        <component :is="currentEditor" :key="activeSlug" v-if="currentEditor" />
         <div v-else class="admin-feedback admin-feedback--error">
           找不到對應的編輯器
         </div>

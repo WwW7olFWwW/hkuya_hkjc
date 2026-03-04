@@ -247,7 +247,8 @@ export function normalizeContent(input: ContentMap) {
 
     for (const fieldKey of fieldKeys) {
       if (incoming.fields && Object.prototype.hasOwnProperty.call(incoming.fields, fieldKey)) {
-        mergedFields[fieldKey] = incoming.fields[fieldKey]
+        const incomingValue = incoming.fields[fieldKey]
+        mergedFields[fieldKey] = (incomingValue !== null && incomingValue !== undefined) ? incomingValue : fallback.fields[fieldKey]
       } else {
         mergedFields[fieldKey] = fallback.fields[fieldKey]
       }

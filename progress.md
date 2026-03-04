@@ -530,3 +530,23 @@
   - 驗證：PocketBase (200)、Admin (200)、主站 (200)
 - **里程碑**：所有編輯器功能完整，數組字段正常工作！
 
+## 2026-03-04（修復 FormKit repeater 類型錯誤）
+- 問題：生產環境瀏覽器控制台報錯「Unknown input type 'repeater'」
+- 影響：所有使用 repeater 的編輯器無法正常工作（ProjectIntro, Positions, Timeline, AboutUs, SiteSettings）
+- 根因分析：
+  - 使用 Context7 查詢 FormKit 官方文檔
+  - 發現 `repeater` 是 FormKit Pro 功能，需要付費版本
+  - 免費版本應使用 `list` 類型配合 `dynamic` prop 實現相同功能
+- 修復方案：
+  - 將所有編輯器的 `type="repeater"` 改為 `type="list" dynamic`
+  - 修改文件：ProjectIntroEditor, PositionsEditor (2處), TimelineEditor (2處), AboutUsEditor, SiteSettingsEditor (3處)
+  - 功能完全相同，只是使用免費版本的 API
+- 驗證：
+  - `npm test` 全部通過（29 files / 65 tests）
+  - `npm run docs:build` 成功（51.37s）
+- 部署：
+  - 備份：`/var/www/hkuya.org/hkjc.bak-20260304173300`
+  - 部署到：`/var/www/hkuya.org/hkjc`
+  - 驗證：PocketBase (200)、Admin (200)、主站 (200)
+- **里程碑**：FormKit 遷移完全完成，所有編輯器在生產環境正常工作！
+

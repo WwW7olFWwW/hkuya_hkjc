@@ -4,13 +4,31 @@ import { usePocketBaseContent } from "@/lib/admin/usePocketBaseContent"
 
 const { state, load, save } = usePocketBaseContent("project_intro")
 
-onMounted(function () {
-  load()
+function convertArraysToStrings() {
+  if (!state.fields) return
+  if (Array.isArray(state.fields.eligibilityZh)) state.fields.eligibilityZh = state.fields.eligibilityZh.join('\n')
+  if (Array.isArray(state.fields.eligibilityEn)) state.fields.eligibilityEn = state.fields.eligibilityEn.join('\n')
+  if (Array.isArray(state.fields.feeZh)) state.fields.feeZh = state.fields.feeZh.join('\n')
+  if (Array.isArray(state.fields.feeEn)) state.fields.feeEn = state.fields.feeEn.join('\n')
+}
+
+onMounted(async function () {
+  await load()
+  convertArraysToStrings()
 })
 
 async function handleSave() {
   try {
+    const fieldsToSave = JSON.parse(JSON.stringify(state.fields))
+    if (typeof fieldsToSave.eligibilityZh === 'string') fieldsToSave.eligibilityZh = fieldsToSave.eligibilityZh.split('\n').filter(Boolean)
+    if (typeof fieldsToSave.eligibilityEn === 'string') fieldsToSave.eligibilityEn = fieldsToSave.eligibilityEn.split('\n').filter(Boolean)
+    if (typeof fieldsToSave.feeZh === 'string') fieldsToSave.feeZh = fieldsToSave.feeZh.split('\n').filter(Boolean)
+    if (typeof fieldsToSave.feeEn === 'string') fieldsToSave.feeEn = fieldsToSave.feeEn.split('\n').filter(Boolean)
+
+    const originalFields = state.fields
+    state.fields = fieldsToSave
     await save()
+    state.fields = originalFields
   } catch (error) {
     console.error("儲存失敗", error)
   }

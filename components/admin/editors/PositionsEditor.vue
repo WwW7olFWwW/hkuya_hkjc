@@ -4,13 +4,46 @@ import { usePocketBaseContent } from "@/lib/admin/usePocketBaseContent"
 
 const { state, load, save } = usePocketBaseContent("positions")
 
-onMounted(function () {
-  load()
+function convertArraysToStrings() {
+  if (!state.fields || !state.fields.groups || !Array.isArray(state.fields.groups)) return
+  state.fields.groups.forEach(function (group: any) {
+    if (group && group.positions && Array.isArray(group.positions)) {
+      group.positions.forEach(function (pos: any) {
+        if (!pos) return
+        if (Array.isArray(pos.companyLines)) pos.companyLines = pos.companyLines.join('\n')
+        if (Array.isArray(pos.roleLines)) pos.roleLines = pos.roleLines.join('\n')
+        if (Array.isArray(pos.requirements)) pos.requirements = pos.requirements.join('\n')
+        if (Array.isArray(pos.duties)) pos.duties = pos.duties.join('\n')
+      })
+    }
+  })
+}
+
+onMounted(async function () {
+  await load()
+  convertArraysToStrings()
 })
 
 async function handleSave() {
   try {
+    const fieldsToSave = JSON.parse(JSON.stringify(state.fields))
+    if (fieldsToSave.groups) {
+      fieldsToSave.groups.forEach(function (group: any) {
+        if (group.positions) {
+          group.positions.forEach(function (pos: any) {
+            if (typeof pos.companyLines === 'string') pos.companyLines = pos.companyLines.split('\n').filter(Boolean)
+            if (typeof pos.roleLines === 'string') pos.roleLines = pos.roleLines.split('\n').filter(Boolean)
+            if (typeof pos.requirements === 'string') pos.requirements = pos.requirements.split('\n').filter(Boolean)
+            if (typeof pos.duties === 'string') pos.duties = pos.duties.split('\n').filter(Boolean)
+          })
+        }
+      })
+    }
+
+    const originalFields = state.fields
+    state.fields = fieldsToSave
     await save()
+    state.fields = originalFields
   } catch (error) {
     console.error("儲存失敗", error)
   }

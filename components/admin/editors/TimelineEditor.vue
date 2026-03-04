@@ -4,13 +4,43 @@ import { usePocketBaseContent } from "@/lib/admin/usePocketBaseContent"
 
 const { state, load, save } = usePocketBaseContent("timeline")
 
-onMounted(function () {
-  load()
+function convertArraysToStrings() {
+  if (!state.fields) return
+  if (state.fields.steps && Array.isArray(state.fields.steps)) {
+    state.fields.steps.forEach(function (step: any) {
+      if (step && Array.isArray(step.content)) step.content = step.content.join('\n')
+    })
+  }
+  if (state.fields.notes && Array.isArray(state.fields.notes)) {
+    state.fields.notes.forEach(function (note: any) {
+      if (note && Array.isArray(note.content)) note.content = note.content.join('\n')
+    })
+  }
+}
+
+onMounted(async function () {
+  await load()
+  convertArraysToStrings()
 })
 
 async function handleSave() {
   try {
+    const fieldsToSave = JSON.parse(JSON.stringify(state.fields))
+    if (fieldsToSave.steps) {
+      fieldsToSave.steps.forEach(function (step: any) {
+        if (typeof step.content === 'string') step.content = step.content.split('\n').filter(Boolean)
+      })
+    }
+    if (fieldsToSave.notes) {
+      fieldsToSave.notes.forEach(function (note: any) {
+        if (typeof note.content === 'string') note.content = note.content.split('\n').filter(Boolean)
+      })
+    }
+
+    const originalFields = state.fields
+    state.fields = fieldsToSave
     await save()
+    state.fields = originalFields
   } catch (error) {
     console.error("儲存失敗", error)
   }

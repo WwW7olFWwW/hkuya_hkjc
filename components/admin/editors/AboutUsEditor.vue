@@ -43,7 +43,7 @@ function handleLogoUpload(event: Event, index: number) {
       <FormKit type="text" name="titleZh" label="標題（中文）" />
       <FormKit type="text" name="titleEn" label="標題（英文）" />
 
-      <FormKit type="repeater" name="organizations" label="機構列表"
+      <FormKit type="list" dynamic name="organizations" label="機構列表"
         add-label="+ 新增機構" :min="1">
         <FormKit type="text" name="role" label="角色" />
         <FormKit type="text" name="name" label="名稱" />

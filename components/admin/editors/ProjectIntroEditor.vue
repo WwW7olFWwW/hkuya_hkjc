@@ -67,7 +67,7 @@ function handlePosterUpload(event: Event) {
         <input type="file" accept="image/*" @change="handlePosterUpload" class="admin-input text-sm" />
       </div>
 
-      <FormKit type="repeater" name="infoCards" label="資訊卡片"
+      <FormKit type="list" dynamic name="infoCards" label="資訊卡片"
         add-label="+ 新增卡片" :min="1">
         <FormKit type="text" name="titleZh" label="標題（中文）" />
         <FormKit type="text" name="titleEn" label="標題（英文）" />

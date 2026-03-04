@@ -512,3 +512,21 @@
   - 支援選擇圖片文件並自動轉換為 Base64 存入對應字段
 - 驗證：`npm test` 全部通過（29 files / 65 tests）
 
+## 2026-03-04（修復數組字段轉換問題）
+- 問題：Positions/ProjectIntro/Timeline 編輯器的數組字段（string[]）無法正確顯示和保存
+- 根因：FormKit textarea 綁定 string，但 PocketBase 存儲 string[]，缺少格式轉換
+- 修復方案：
+  - PositionsEditor: 添加 companyLines/roleLines/requirements/duties 轉換
+  - ProjectIntroEditor: 添加 eligibilityZh/En, feeZh/En 轉換
+  - TimelineEditor: 添加 steps/notes content 轉換
+  - 載入時：string[] → string（用 '\n' 連接）
+  - 保存時：string → string[]（按 '\n' 分割並過濾空行）
+- 驗證：
+  - `npm test` 全部通過（29 files / 65 tests）
+  - `npm run docs:build` 成功（62.58s）
+- 部署：
+  - 備份：`/var/www/hkuya.org/hkjc.bak-20260304165325`
+  - 部署到：`/var/www/hkuya.org/hkjc`
+  - 驗證：PocketBase (200)、Admin (200)、主站 (200)
+- **里程碑**：所有編輯器功能完整，數組字段正常工作！
+

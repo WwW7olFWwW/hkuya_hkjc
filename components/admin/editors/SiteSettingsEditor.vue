@@ -27,7 +27,7 @@ async function handleSave() {
     <FormKit v-else type="form" v-model="state.fields" @submit="handleSave">
       <FormKit type="number" name="logoHeight" label="Logo 高度（像素）" />
 
-      <FormKit type="repeater" name="headerLinks" label="頁首連結"
+      <FormKit type="list" dynamic name="headerLinks" label="頁首連結"
         add-label="+ 新增連結" :min="1">
         <FormKit type="text" name="titleZh" label="標題（中文）" />
         <FormKit type="text" name="titleEn" label="標題（英文）" />
@@ -35,14 +35,14 @@ async function handleSave() {
         <FormKit type="checkbox" name="primary" label="主要連結" />
       </FormKit>
 
-      <FormKit type="repeater" name="footerQuickLinks" label="頁尾快速連結"
+      <FormKit type="list" dynamic name="footerQuickLinks" label="頁尾快速連結"
         add-label="+ 新增連結" :min="1">
         <FormKit type="text" name="label" label="標籤" />
         <FormKit type="text" name="href" label="連結" />
         <FormKit type="checkbox" name="primary" label="主要連結" />
       </FormKit>
 
-      <FormKit type="repeater" name="footerSocialLinks" label="頁尾社交連結"
+      <FormKit type="list" dynamic name="footerSocialLinks" label="頁尾社交連結"
         add-label="+ 新增連結" :min="1">
         <FormKit type="text" name="label" label="標籤" />
         <FormKit type="text" name="href" label="連結" />

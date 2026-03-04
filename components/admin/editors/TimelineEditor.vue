@@ -58,14 +58,14 @@ async function handleSave() {
       <FormKit type="text" name="titleZh" label="標題（中文）" />
       <FormKit type="text" name="titleEn" label="標題（英文）" />
 
-      <FormKit type="repeater" name="steps" label="時間步驟"
+      <FormKit type="list" dynamic name="steps" label="時間步驟"
         add-label="+ 新增步驟" :min="1">
         <FormKit type="text" name="date" label="日期" />
         <FormKit type="textarea" name="content" label="內容（每行一項）" :rows="2" />
         <FormKit type="checkbox" name="highlight" label="重點標示" />
       </FormKit>
 
-      <FormKit type="repeater" name="notes" label="備註說明"
+      <FormKit type="list" dynamic name="notes" label="備註說明"
         add-label="+ 新增備註" :min="1">
         <FormKit type="text" name="icon" label="圖示" />
         <FormKit type="text" name="title" label="標題" />

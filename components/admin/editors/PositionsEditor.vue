@@ -61,12 +61,12 @@ async function handleSave() {
       <FormKit type="text" name="titleZh" label="標題（中文）" />
       <FormKit type="text" name="titleEn" label="標題（英文）" />
 
-      <FormKit type="repeater" name="groups" label="地區分組"
+      <FormKit type="list" dynamic name="groups" label="地區分組"
         add-label="+ 新增地區" :min="1">
         <FormKit type="text" name="location" label="地區" />
         <FormKit type="textarea" name="description" label="地區描述" :rows="2" />
 
-        <FormKit type="repeater" name="positions" label="崗位列表"
+        <FormKit type="list" dynamic name="positions" label="崗位列表"
           add-label="+ 新增崗位" :min="1">
           <FormKit type="textarea" name="companyLines"
             label="公司名稱（每行一條）" :rows="2"

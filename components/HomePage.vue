@@ -31,9 +31,6 @@ async function setupSubscription() {
       contentState.value = applyContentUpdate(contentState.value, payload)
     })
     connectionError.value = false
-    <div v-if="connectionError" class="fixed bottom-4 right-4 bg-yellow-100 border border-yellow-400 text-yellow-800 px-4 py-2 rounded-lg shadow-lg text-sm">
-      ⚠️ 實時更新連接中斷，正在重新連接...
-    </div>
   } catch (error) {
     console.error("訂閱失敗:", error)
     connectionError.value = true
@@ -42,7 +39,6 @@ async function setupSubscription() {
 }
 
 onMounted(initializeContent)
-})
 
 onBeforeUnmount(function () {
   if (subscription && typeof subscription.unsubscribe === "function") {
@@ -53,6 +49,9 @@ onBeforeUnmount(function () {
 
 <template>
   <div v-if="isReady">
+    <div v-if="connectionError" class="fixed bottom-4 right-4 bg-yellow-100 border border-yellow-400 text-yellow-800 px-4 py-2 rounded-lg shadow-lg text-sm">
+      ⚠️ 實時更新連接中斷，正在重新連接...
+    </div>
     <ProjectIntro :content="contentState.project_intro" />
     <InterviewSection :content="contentState.interview" />
     <TimelineSection :content="contentState.timeline" />

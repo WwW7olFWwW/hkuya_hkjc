@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from "vue"
+import { ref, computed, watch } from "vue"
 import { defaultContent } from "@/lib/content/defaultContent"
 import ContactEditor from "@/components/admin/editors/ContactEditor.vue"
 import InterviewEditor from "@/components/admin/editors/InterviewEditor.vue"
@@ -11,6 +11,17 @@ import SiteSettingsEditor from "@/components/admin/editors/SiteSettingsEditor.vu
 
 const slugs = Object.keys(defaultContent)
 const activeSlug = ref(slugs.length > 0 ? slugs[0] : "")
+const pendingSlug = ref(activeSlug.value)
+
+watch(pendingSlug, async function(newSlug) {
+  if (newSlug !== activeSlug.value) {
+    if (confirm("切換內容區塊可能會丟失未保存的更改，確定要繼續嗎？")) {
+      activeSlug.value = newSlug
+    } else {
+      pendingSlug.value = activeSlug.value
+    }
+  }
+})
 
 const editorMap = {
   contact: ContactEditor,
@@ -47,7 +58,7 @@ const currentEditor = computed(function () {
       <div class="space-y-4">
         <div class="admin-side-block space-y-2">
           <label for="content-slug" class="admin-label">內容區塊</label>
-          <select id="content-slug" v-model="activeSlug" class="admin-input w-full text-sm">
+          <select id="content-slug" v-model="pendingSlug" class="admin-input w-full text-sm">
             <option v-for="slug in slugs" :key="slug" :value="slug">{{ slug }}</option>
           </select>
         </div>

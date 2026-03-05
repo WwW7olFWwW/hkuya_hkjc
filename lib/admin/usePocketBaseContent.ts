@@ -1,4 +1,4 @@
-import { ref, type Ref } from "vue"
+import { ref, watch, type Ref } from "vue"
 import { getPocketBaseClient } from "@/lib/pocketbase/client"
 import { POCKETBASE_COLLECTIONS } from "@/lib/pocketbase/collections"
 import { normalizeContent } from "@/lib/content/normalizeContent"
@@ -62,6 +62,10 @@ export function usePocketBaseContent(slug: ContentSlug) {
     state.value.fields = JSON.parse(JSON.stringify(originalFields.value))
     state.value.dirty = false
   }
+
+  watch(() => state.value.fields, function() {
+    state.value.dirty = JSON.stringify(state.value.fields) !== JSON.stringify(originalFields.value)
+  }, { deep: true })
 
   return { state, load, save, reset }
 }

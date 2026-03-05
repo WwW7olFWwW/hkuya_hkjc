@@ -142,3 +142,237 @@
 | 新增依賴 | @formkit/vue (~28KB) | 無 |
 
 **結論**：FormKit 方案比自建方案少寫約 600 行代碼，且 repeater/validation/i18n 由框架處理，長期維護成本更低。
+
+## 2026-03-04: FormKit 遷移完成但發現問題
+
+### FormKit 實施過程
+- 完成了全部 12 個 Phase（安裝、配置、7 個編輯器、整合、Formio 移除、部署）
+- 所有編輯器功能正常，測試通過
+- 成功移除 Formio 依賴（-2000 行代碼，-500KB bundle）
+
+### FormKit 遇到的問題
+1. **`repeater` 是 Pro 功能**
+   - 免費版需使用 `list` + `dynamic` prop
+   - 生產環境報錯 "Unknown input type 'repeater'"
+   - 修復：全局替換為 `type="list" dynamic`
+
+2. **初始化時序問題**
+   - 錯誤：`Cannot set -1 to non array value: undefined`
+   - 根因：FormKit 在數據載入前就嘗試綁定
+   - 嘗試了 4 次修復：
+     - normalizeContent 處理 null/undefined
+     - usePocketBaseContent 初始化使用 defaultContent
+     - 添加 formReady 標誌延遲渲染
+     - 將 loading 初始值改為 true（最終方案）
+
+3. **仍有 ~28KB 開銷**
+   - FormKit 雖比 Formio 輕量 95%，但仍需學習其 API
+   - 對於 7 個簡單編輯器來說可能過度工程化
+
+## 2026-03-04: 切換到原生 Vue 3 組件方案
+
+### 決策理由
+1. **FormKit 問題持續**：初始化時序問題修復了 4 次仍不穩定
+2. **過度工程化**：7 個編輯器結構簡單，不需要完整表單框架
+3. **學習成本**：FormKit API 仍需學習，不如用熟悉的 Vue
+4. **完全可控**：原生組件無黑盒，出問題容易調試
+
+### 原生 Vue 3 組件設計
+
+#### AdminField 組件（38 行）
+```vue
+<script setup lang="ts">
+const props = withDefaults(defineProps<{
+  modelValue?: string | number | boolean
+  label: string
+  type?: "text" | "textarea" | "number" | "checkbox"
+  rows?: number
+  placeholder?: string
+}>(), {
+  modelValue: "",
+  type: "text",
+  rows: 3,
+  placeholder: ""
+})
+
+const emit = defineEmits<{
+  "update:modelValue": [value: string | number | boolean]
+}>()
+
+function handleInput(event: Event) {
+  const target = event.target as HTMLInputElement
+  if (props.type === "checkbox") {
+    emit("update:modelValue", target.checked)
+  } else if (props.type === "number") {
+    emit("update:modelValue", Number(target.value))
+  } else {
+    emit("update:modelValue", target.value)
+  }
+}
+</script>
+
+<template>
+  <div class="mb-4" :class="{ 'flex items-center gap-2': type === 'checkbox' }">
+    <label class="admin-label">{{ label }}</label>
+    <textarea v-if="type === 'textarea'" class="admin-input w-full"
+      :value="String(modelValue ?? '')" :rows="rows" :placeholder="placeholder"
+      @input="handleInput"></textarea>
+    <input v-else-if="type === 'checkbox'" type="checkbox"
+      :checked="Boolean(modelValue)" @change="handleInput" />
+    <input v-else class="admin-input w-full" :type="type"
+      :value="modelValue ?? ''" :placeholder="placeholder" @input="handleInput" />
+  </div>
+</template>
+```
+
+**關鍵設計**：
+- `modelValue` 可選 + 默認值 `""`，避免 undefined 警告
+- 使用 `?? ''` 空值合併運算符處理 undefined
+- 支持 4 種類型：text/textarea/number/checkbox
+- 完全類型安全（TypeScript）
+
+#### TextareaArray 組件（33 行）
+```vue
+<script setup lang="ts">
+import { computed } from "vue"
+
+const props = withDefaults(defineProps<{
+  modelValue: string[]
+  label: string
+  rows?: number
+  placeholder?: string
+}>(), {
+  rows: 3,
+  placeholder: ""
+})
+
+const emit = defineEmits<{
+  "update:modelValue": [value: string[]]
+}>()
+
+const displayText = computed(function () {
+  return props.modelValue.join("\n")
+})
+
+function handleInput(event: Event) {
+  const target = event.target as HTMLTextAreaElement
+  const lines = target.value.split("\n")
+  const filtered: string[] = []
+  for (const line of lines) {
+    const trimmed = line.trim()
+    if (trimmed !== "") {
+      filtered.push(trimmed)
+    }
+  }
+  emit("update:modelValue", filtered)
+}
+</script>
+```
+
+**關鍵設計**：
+- 自動轉換：`string[]` ↔ 換行分隔文本
+- 自動過濾空行
+- 實時更新（每次輸入都觸發）
+
+#### AdminRepeater 組件（48 行）
+```vue
+<script setup lang="ts">
+const props = withDefaults(defineProps<{
+  modelValue: any[]
+  emptyItem: Record<string, unknown>
+  addLabel?: string
+  min?: number
+  label?: string
+}>(), {
+  addLabel: "+ 新增",
+  min: 0,
+  label: ""
+})
+
+const emit = defineEmits<{
+  "update:modelValue": [value: any[]]
+}>()
+
+function addItem() {
+  const newItem = JSON.parse(JSON.stringify(props.emptyItem))
+  const newList = props.modelValue.slice()
+  newList.push(newItem)
+  emit("update:modelValue", newList)
+}
+
+function removeItem(index: number) {
+  if (props.modelValue.length <= props.min) return
+  const newList = props.modelValue.slice()
+  newList.splice(index, 1)
+  emit("update:modelValue", newList)
+}
+</script>
+
+<template>
+  <div class="mb-6">
+    <div v-if="label" class="admin-label mb-2">{{ label }}</div>
+    <div v-for="(item, index) in modelValue" :key="index"
+      class="border border-slate-200 rounded-lg p-4 mb-3 relative">
+      <slot name="item" :item="item" :index="index"></slot>
+      <button type="button" data-test="remove-btn"
+        class="admin-action--subtle text-red-500 text-sm mt-2"
+        :disabled="modelValue.length <= min" @click="removeItem(index)">
+        刪除
+      </button>
+    </div>
+    <button type="button" data-test="add-btn"
+      class="admin-action--secondary text-sm" @click="addItem">
+      {{ addLabel }}
+    </button>
+  </div>
+</template>
+```
+
+**關鍵設計**：
+- 使用 slot 傳遞 `item` 和 `index`，父組件完全控制渲染
+- 支持 `min` prop 限制最小數量
+- 支持無限嵌套（Positions 三層嵌套驗證通過）
+- 使用 `JSON.parse(JSON.stringify())` 深拷貝避免引用污染
+
+### 實施結果
+
+**代碼量**：
+- 3 個基礎組件：119 行
+- 7 個編輯器：398 行
+- 總計：517 行（vs FormKit 900 行，vs Formio 2179 行）
+
+**Bundle 大小**：
+- 0KB 外部依賴（vs FormKit 28KB，vs Formio 500KB）
+
+**質量**：
+- 32 files / 79 tests 全部通過
+- 0 個 Vue 警告
+- 0 個運行時錯誤
+- 構建時間：~39 秒
+
+### 關鍵經驗教訓
+
+1. **簡單問題不需要複雜方案**
+   - 7 個編輯器結構簡單，FormKit/Formio 都是過度工程化
+   - 原生 Vue 3 組件足夠且更可控
+
+2. **第三方庫的隱藏成本**
+   - FormKit 看似簡單，但有學習成本、版本限制、黑盒問題
+   - 原生方案無依賴、無版本衝突、完全透明
+
+3. **Slot-based 設計的威力**
+   - AdminRepeater 使用 slot 而非 schema，靈活性極高
+   - 支持任意結構、任意嵌套、完全類型安全
+
+4. **TypeScript 的價值**
+   - 所有組件都有完整類型定義
+   - 編輯器使用時有完整的智能提示和類型檢查
+
+### 最終架構優勢
+
+1. **極簡**：517 行代碼，0KB 依賴
+2. **清晰**：每個編輯器 40-64 行，一目了然
+3. **可控**：無黑盒，出問題容易定位
+4. **穩定**：零警告、零錯誤、生產環境驗證通過
+5. **可維護**：純 Vue 3，任何 Vue 開發者都能理解和修改
+

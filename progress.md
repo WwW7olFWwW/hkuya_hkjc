@@ -636,3 +636,26 @@
 - Git commit：`fix: 修復 FormKit 初始化時序問題，將 loading 初始值改為 true`
 - **里程碑**：從根本解決 FormKit 初始化問題，等待用戶確認！
 
+
+## 2026-03-05（完成原生 Vue 3 組件遷移）
+- 問題：上下文過長，無法了解當前進度
+- 檢查發現：已從 FormKit 切換到原生 Vue 3 組件方案
+- 當前狀態：
+  - ✅ 創建了 3 個原生組件（AdminField, TextareaArray, AdminRepeater）
+  - ✅ 重寫了全部 7 個編輯器
+  - ✅ 移除了 FormKit 依賴（formkitConfig.ts, formkit-admin.css）
+  - ⚠️ 測試通過但有 Vue 警告（modelValue undefined）
+- 修復 AdminField 組件：
+  - 將 `modelValue` prop 改為可選（`modelValue?`）
+  - 添加默認值 `modelValue: ""`
+  - 使用空值合併運算符 `?? ''` 處理 undefined
+- 驗證：
+  - `npm test` 全部通過（32 files / 79 tests）
+  - Vue 警告完全消失（0 個警告）
+  - `npm run docs:build` 成功（39.00s）
+- Git commit：`fix: AdminField 支持 undefined modelValue，消除 Vue 警告`
+- 部署：
+  - 備份：`/var/www/hkuya.org/hkjc.bak-$(date +%Y%m%d%H%M%S)`
+  - 部署到：`/var/www/hkuya.org/hkjc`
+  - 驗證：PocketBase (200)、主站 (200)、Admin (200)
+- **里程碑**：原生 Vue 3 組件方案完全穩定，無任何警告或錯誤！

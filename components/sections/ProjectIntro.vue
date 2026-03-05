@@ -100,7 +100,7 @@ function getInfoIcon(index: number) {
                 <img
                   :src="resolveAsset(content.fields.posterUrl)"
                   alt="HKUYA HKJC 暑期實習計劃海報"
-                  class="w-full rounded-xl shadow-md transition-transform duration-200 hover:scale-[1.02]"
+                  loading="lazy" class="w-full rounded-xl shadow-md transition-transform duration-200 hover:scale-[1.02]"
                 />
                 <div class="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors duration-200 rounded-xl flex items-center justify-center">
                   <span class="opacity-0 group-hover:opacity-100 transition-opacity duration-200 pill-accent shadow-lg">
@@ -113,12 +113,13 @@ function getInfoIcon(index: number) {
             <DialogScrollContent class="max-w-5xl">
               <img :src="resolveAsset(content.fields.posterUrl)" alt="HKUYA HKJC 暑期實習計劃海報" loading="lazy" class="w-full rounded-lg" />
             </DialogScrollContent>
+          </Dialog>
+
           <div class="space-y-3">
             <p class="text-slate-800">{{ content.fields.descriptionZh }}</p>
             <div class="border-l-2 border-brand-green/30 pl-3">
               <p class="text-slate-600 italic">{{ content.fields.descriptionEn }}</p>
             </div>
-          </div>
           </div>
         </div>
 

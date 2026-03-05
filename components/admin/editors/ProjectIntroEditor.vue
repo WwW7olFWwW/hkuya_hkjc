@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted } from "vue"
+import { onMounted, ref } from "vue"
 import { usePocketBaseContent } from "@/lib/admin/usePocketBaseContent"
 import AdminField from "@/components/admin/fields/AdminField.vue"
 import AdminRepeater from "@/components/admin/fields/AdminRepeater.vue"
@@ -7,6 +7,8 @@ import TextareaArray from "@/components/admin/fields/TextareaArray.vue"
 
 const { state, load, save } = usePocketBaseContent("project_intro")
 onMounted(load)
+const uploadProgress = ref(0)
+const isUploading = ref(false)
 
 const emptyInfoCard = { titleZh: "", titleEn: "", contentZh: "", contentEn: "" }
 
@@ -14,10 +16,35 @@ function handlePosterUpload(event: Event) {
   const input = event.target as HTMLInputElement
   const file = input.files?.[0]
   if (!file) return
+
+  if (file.size > 5 * 1024 * 1024) {
+    alert("圖片大小不能超過 5MB")
+    return
+  }
+
+  isUploading.value = true
+  uploadProgress.value = 0
+
   const reader = new FileReader()
+
+  reader.onprogress = function(e) {
+    if (e.lengthComputable) {
+      uploadProgress.value = Math.round((e.loaded / e.total) * 100)
+    }
+  }
+
   reader.onload = function (e) {
     state.fields.posterUrl = e.target?.result as string
+    isUploading.value = false
+    uploadProgress.value = 0
   }
+
+  reader.onerror = function() {
+    alert("圖片上傳失敗")
+    isUploading.value = false
+    uploadProgress.value = 0
+  }
+
   reader.readAsDataURL(file)
 }
 </script>
@@ -36,7 +63,13 @@ function handlePosterUpload(event: Event) {
       <AdminField label="描述（英文）" v-model="state.fields.descriptionEn" type="textarea" :rows="4" />
       <AdminField label="海報圖片路徑" v-model="state.fields.posterUrl" />
       <div class="mb-4">
-        <input type="file" accept="image/*" class="admin-input text-sm" @change="handlePosterUpload" />
+        <input type="file" accept="image/*" class="admin-input text-sm" @change="handlePosterUpload" :disabled="isUploading" />
+        <div v-if="isUploading" class="mt-2">
+          <div class="w-full bg-slate-200 rounded-full h-2">
+            <div class="bg-brand-green h-2 rounded-full transition-all duration-300" :style="{ width: uploadProgress + '%' }"></div>
+          </div>
+          <p class="text-xs text-slate-600 mt-1">上傳中... {{ uploadProgress }}%</p>
+        </div>
       </div>
       <AdminRepeater
         v-model="state.fields.infoCards"

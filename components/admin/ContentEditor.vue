@@ -30,11 +30,16 @@ const currentEditor = computed(function () {
 <template>
   <div class="space-y-5">
     <section class="section-card admin-subcard p-5">
-      <div class="space-y-2">
+      <div class="flex items-start justify-between gap-4">
+        <div class="space-y-2">
         <h2 class="text-xl font-semibold text-slate-900">內容編輯</h2>
         <p class="max-w-3xl text-sm leading-7 text-slate-600">
           選擇內容區塊，直接編輯並儲存。
         </p>
+        </div>
+        <a href="/" target="_blank" class="admin-action-secondary text-sm whitespace-nowrap">
+          在新標籤頁預覽
+        </a>
       </div>
     </section>
 

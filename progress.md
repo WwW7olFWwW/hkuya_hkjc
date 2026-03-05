@@ -659,3 +659,28 @@
   - 部署到：`/var/www/hkuya.org/hkjc`
   - 驗證：PocketBase (200)、主站 (200)、Admin (200)
 - **里程碑**：原生 Vue 3 組件方案完全穩定，無任何警告或錯誤！
+
+## 2026-03-05（添加實習崗位排序功能）
+- 用戶需求：實習崗位無法移動，希望能調整順序
+- 實施方案：為 AdminRepeater 組件添加上移/下移按鈕
+- 修改內容：
+  - `components/admin/fields/AdminRepeater.vue`：
+    - 添加 `moveUp(index)` 方法（交換當前項與上一項）
+    - 添加 `moveDown(index)` 方法（交換當前項與下一項）
+    - 模板添加上移/下移按鈕
+    - 第一項禁用上移，最後一項禁用下移
+  - `tests/admin/fields/AdminRepeater.test.ts`：
+    - 添加 4 個新測試（上移、下移、禁用邏輯）
+    - 測試總數：4 → 8
+- 驗證：
+  - `npm test` 全部通過（32 files / 83 tests）
+  - `npm run docs:build` 成功（42.46s）
+- Git commit：`feat: 為 AdminRepeater 添加排序功能（上移/下移按鈕）`
+- 部署：
+  - 備份：`/var/www/hkuya.org/hkjc.bak-$(date +%Y%m%d%H%M%S)`
+  - 部署到：`/var/www/hkuya.org/hkjc`
+  - 驗證：Admin (200)
+- **功能說明**：
+  - 所有使用 AdminRepeater 的編輯器都自動獲得排序功能
+  - 包括：AboutUs (organizations)、ProjectIntro (infoCards)、Positions (groups + positions)、Timeline (steps + notes)、SiteSettings (3 組 links)
+  - 用戶現在可以在後台調整實習崗位順序，例如將「北京亦莊盛元投資開發集團」移到「中國科學院生態環境研究中心」後面

@@ -12,6 +12,7 @@ const isUploading = ref(false)
 
 const emptyInfoCard = { titleZh: "", titleEn: "", contentZh: "", contentEn: "" }
 
+const connectionError = ref(false)
 function handlePosterUpload(event: Event) {
   const input = event.target as HTMLInputElement
   const file = input.files?.[0]

@@ -96,26 +96,29 @@ function getInfoIcon(index: number) {
         <div class="grid gap-6 md:grid-cols-[320px_1fr]">
           <Dialog>
             <DialogTrigger as-child>
-              <button type="button" class="relative w-full text-left poster-card">
+              <button type="button" class="relative w-full text-left poster-card group">
                 <img
                   :src="resolveAsset(content.fields.posterUrl)"
                   alt="HKUYA HKJC 暑期實習計劃海報"
                   class="w-full rounded-xl shadow-md transition-transform duration-200 hover:scale-[1.02]"
                 />
-                <span class="absolute bottom-3 right-3 pill-accent shadow">
-                  <ZoomIn class="h-4 w-4" />
-                  放大查看
-                </span>
+                <div class="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors duration-200 rounded-xl flex items-center justify-center">
+                  <span class="opacity-0 group-hover:opacity-100 transition-opacity duration-200 pill-accent shadow-lg">
+                    <ZoomIn class="h-5 w-5" />
+                    放大查看
+                  </span>
+                </div>
               </button>
             </DialogTrigger>
             <DialogScrollContent class="max-w-5xl">
-              <img :src="resolveAsset(content.fields.posterUrl)" alt="HKUYA HKJC 暑期實習計劃海報" class="w-full rounded-lg" />
+              <img :src="resolveAsset(content.fields.posterUrl)" alt="HKUYA HKJC 暑期實習計劃海報" loading="lazy" class="w-full rounded-lg" />
             </DialogScrollContent>
-          </Dialog>
-
-          <div class="space-y-4 text-sm sm:text-base leading-relaxed text-slate-700">
-            <p>{{ content.fields.descriptionZh }}</p>
-            <p>{{ content.fields.descriptionEn }}</p>
+          <div class="space-y-3">
+            <p class="text-slate-800">{{ content.fields.descriptionZh }}</p>
+            <div class="border-l-2 border-brand-green/30 pl-3">
+              <p class="text-slate-600 italic">{{ content.fields.descriptionEn }}</p>
+            </div>
+          </div>
           </div>
         </div>
 

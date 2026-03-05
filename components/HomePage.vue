@@ -12,14 +12,36 @@ import { applyContentUpdate, subscribeContentChanges } from "@/lib/content/realt
 
 const { contentState, load } = useContentStore()
 const isReady = ref(false)
+const connectionError = ref(false)
 let subscription: { unsubscribe: Function } | null = null
+async function initializeContent() {
+  try {
+    await load()
+    isReady.value = true
+    await setupSubscription()
+  } catch (error) {
+    console.error("載入內容失敗:", error)
+    connectionError.value = true
+  }
+}
 
-onMounted(async function () {
-  await load()
-  isReady.value = true
-  subscription = await subscribeContentChanges(function (payload) {
-    contentState.value = applyContentUpdate(contentState.value, payload)
-  })
+async function setupSubscription() {
+  try {
+    subscription = await subscribeContentChanges(function (payload) {
+      contentState.value = applyContentUpdate(contentState.value, payload)
+    })
+    connectionError.value = false
+    <div v-if="connectionError" class="fixed bottom-4 right-4 bg-yellow-100 border border-yellow-400 text-yellow-800 px-4 py-2 rounded-lg shadow-lg text-sm">
+      ⚠️ 實時更新連接中斷，正在重新連接...
+    </div>
+  } catch (error) {
+    console.error("訂閱失敗:", error)
+    connectionError.value = true
+    setTimeout(setupSubscription, 5000)
+  }
+}
+
+onMounted(initializeContent)
 })
 
 onBeforeUnmount(function () {

@@ -128,7 +128,13 @@ function handleTabKeydown(event: KeyboardEvent, currentIndex: number) {
           </div>
 
           <div v-if="!hasPositions()" class="text-center text-slate-500 py-6">
-            更多職位正在更新中...
+          <div v-if="!hasPositions()" class="text-center py-12">
+            <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-100 mb-4">
+              <Briefcase class="h-8 w-8 text-slate-400" />
+            </div>
+            <h3 class="text-lg font-semibold text-slate-700 mb-2">暫無職位</h3>
+            <p class="text-sm text-slate-500">更多職位正在更新中，敬請期待</p>
+          </div>
           </div>
           <div v-else class="space-y-4">
             <div v-for="(position, index) in activeGroup.positions" :key="index" class="position-card">

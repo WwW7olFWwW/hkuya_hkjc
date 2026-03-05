@@ -340,16 +340,45 @@ img {
   background: var(--brand-green);
   border-color: var(--brand-green);
   color: #fff;
+  box-shadow: 0 0 0 4px rgba(0, 126, 78, 0.1);
+}
+
+.timeline-step--completed .timeline-line {
+  background: var(--brand-green);
 }
 
 .timeline-step--active .timeline-circle {
-  border-color: var(--brand-green);
-  color: var(--brand-green);
+  background: var(--brand-blue);
+  border-color: var(--brand-blue);
+  color: #fff;
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  box-shadow: 0 0 0 4px rgba(3, 33, 105, 0.2);
+}
+
+.timeline-step--active .timeline-badge {
+  background: var(--brand-blue);
+  color: white;
+  font-weight: 600;
 }
 
 .timeline-step--pending .timeline-circle {
-  border-color: #e2e8f0;
+  background: white;
+  border-color: var(--brand-muted);
   color: #94a3b8;
+}
+
+.timeline-step--pending .timeline-line {
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+  background: var(--brand-muted);
+  opacity: 0.3;
 }
 
 .timeline-content {

@@ -68,7 +68,7 @@ const navItems = computed(function (): HeaderLink[] {
   <header class="site-header fixed top-0 inset-x-0 z-50 gradient-bar glass-bar border-b border-white/10">
     <div class="mx-auto flex items-center h-full w-full px-4 sm:px-6 lg:px-8">
       <a href="#" class="flex items-center gap-3">
-        <img :src="resolveAsset('/images/3x.png')" alt="HKUYA 標誌" class="w-auto" :style="logoStyle" />
+        <img :src="resolveAsset('/images/3x.png')" alt="HKUYA 標誌" loading="lazy" class="w-auto" :style="logoStyle" />
       </a>
 
       <nav class="nav-desktop">

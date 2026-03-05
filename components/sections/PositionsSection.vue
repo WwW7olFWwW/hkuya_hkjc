@@ -162,8 +162,8 @@ function handleTabKeydown(event: KeyboardEvent, currentIndex: number) {
                     <span>崗位要求 Job Requirements</span>
                     <ChevronDown class="h-4 w-4 transition-transform group-open:rotate-180" />
                   </summary>
-                  <ul class="space-y-2 text-sm text-slate-600 mt-3 ml-4">
-                    <li v-for="item in position.requirements" :key="item" class="list-disc">
+                  <ul class="space-y-2 text-sm text-slate-600 mt-3 pl-4">
+                    <li v-for="item in position.requirements" :key="item">
                       {{ item }}
                     </li>
                   </ul>
@@ -174,8 +174,8 @@ function handleTabKeydown(event: KeyboardEvent, currentIndex: number) {
                     <span>工作內容 Job Description</span>
                     <ChevronDown class="h-4 w-4 transition-transform group-open:rotate-180" />
                   </summary>
-                  <ul class="space-y-2 text-sm text-slate-600 mt-3 ml-4">
-                    <li v-for="item in position.duties" :key="item" class="list-disc">
+                  <ul class="space-y-2 text-sm text-slate-600 mt-3 pl-4">
+                    <li v-for="item in position.duties" :key="item">
                       {{ item }}
                     </li>
                   </ul>

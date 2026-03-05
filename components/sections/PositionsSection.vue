@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Building2, Briefcase, MapPin, ChevronRight, ChevronDown } from "lucide-vue-next"
+import { Building2, Briefcase, MapPin, ChevronDown } from "lucide-vue-next"
 import { computed, ref } from "vue"
 import SectionBlock from "@/components/layout/SectionBlock.vue"
 import PageContainer from "@/components/layout/PageContainer.vue"
@@ -162,10 +162,9 @@ function handleTabKeydown(event: KeyboardEvent, currentIndex: number) {
                     <span>崗位要求 Job Requirements</span>
                     <ChevronDown class="h-4 w-4 transition-transform group-open:rotate-180" />
                   </summary>
-                  <ul class="space-y-2 text-sm text-slate-600 mt-3">
-                    <li v-for="item in position.requirements" :key="item" class="flex gap-2">
-                      <ChevronRight class="h-4 w-4 text-slate-400 mt-0.5" />
-                      <span>{{ item }}</span>
+                  <ul class="space-y-2 text-sm text-slate-600 mt-3 ml-4">
+                    <li v-for="item in position.requirements" :key="item" class="list-disc">
+                      {{ item }}
                     </li>
                   </ul>
                 </details>
@@ -175,10 +174,9 @@ function handleTabKeydown(event: KeyboardEvent, currentIndex: number) {
                     <span>工作內容 Job Description</span>
                     <ChevronDown class="h-4 w-4 transition-transform group-open:rotate-180" />
                   </summary>
-                  <ul class="space-y-2 text-sm text-slate-600 mt-3">
-                    <li v-for="item in position.duties" :key="item" class="flex gap-2">
-                      <ChevronRight class="h-4 w-4 text-slate-400 mt-0.5" />
-                      <span>{{ item }}</span>
+                  <ul class="space-y-2 text-sm text-slate-600 mt-3 ml-4">
+                    <li v-for="item in position.duties" :key="item" class="list-disc">
+                      {{ item }}
                     </li>
                   </ul>
                 </details>

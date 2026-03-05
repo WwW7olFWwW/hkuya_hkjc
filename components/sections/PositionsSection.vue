@@ -50,6 +50,33 @@ const activeGroup = computed(function () {
 function hasPositions() {
   return activeGroup.value.positions.length > 0
 }
+
+function handleTabKeydown(event: KeyboardEvent, currentIndex: number) {
+  const groups = props.content.fields.groups
+  let newIndex = currentIndex
+
+  if (event.key === "ArrowLeft") {
+    event.preventDefault()
+    newIndex = currentIndex > 0 ? currentIndex - 1 : groups.length - 1
+  } else if (event.key === "ArrowRight") {
+    event.preventDefault()
+    newIndex = currentIndex < groups.length - 1 ? currentIndex + 1 : 0
+  } else if (event.key === "Home") {
+    event.preventDefault()
+    newIndex = 0
+  } else if (event.key === "End") {
+    event.preventDefault()
+    newIndex = groups.length - 1
+  } else {
+    return
+  }
+
+  setActiveIndex(newIndex)
+  const newTab = document.getElementById("tab-" + newIndex)
+  if (newTab) {
+    newTab.focus()
+  }
+}
 </script>
 
 <template>
@@ -75,6 +102,7 @@ function hasPositions() {
             aria-controls="positions-panel"
             :tabindex="isActiveIndex(groupIndex) ? 0 : -1"
             @click="setActiveIndex(groupIndex)"
+            @keydown="handleTabKeydown($event, groupIndex)"
           >
             <div class="flex items-center gap-2">
               <MapPin class="h-5 w-5 text-brand-green" />

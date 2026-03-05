@@ -54,6 +54,25 @@
 }
 
 @layer base {
+  *:focus-visible {
+    outline: 2px solid var(--brand-green);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  button:focus-visible,
+  a:focus-visible {
+    outline: 2px solid var(--brand-green);
+    outline-offset: 2px;
+  }
+
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible {
+    outline: 2px solid var(--brand-blue);
+    outline-offset: 0;
+    border-color: var(--brand-blue);
+  }
   * {
     border-color: hsl(var(--border));
   }
@@ -462,6 +481,17 @@ details[open] > .position-summary::after {
 }
 
 @layer components {
+  button,
+  a,
+  [role="button"],
+  [role="tab"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  .icon-button {
+    padding: 12px;
+  }
   .btn-primary {
     display: inline-flex;
     align-items: center;

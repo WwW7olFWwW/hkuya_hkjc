@@ -467,6 +467,11 @@ img {
   border-top: 1px dashed rgba(15, 23, 42, 0.12);
 }
 
+.position-detail ul {
+  list-style: none;
+  padding-left: 0;
+}
+
 .position-summary {
   cursor: pointer;
   font-weight: 600;

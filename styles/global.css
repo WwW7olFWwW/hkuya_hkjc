@@ -478,15 +478,6 @@ img {
   display: none;
 }
 
-.position-summary::after {
-  content: "+";
-  float: right;
-  color: #64748b;
-}
-
-details[open] > .position-summary::after {
-  content: "–";
-}
 
 @media (min-width: 1024px) {
   .tabs-list {

@@ -7,13 +7,11 @@ vi.mock("@/lib/admin/usePocketBaseContent", function () {
     usePocketBaseContent: vi.fn(function () {
       return {
         state: {
-          value: {
-            fields: { groups: [] },
-            loading: false,
-            saving: false,
-            error: null,
-            dirty: false
-          }
+          fields: { groups: [] },
+          loading: false,
+          saving: false,
+          error: null,
+          dirty: false
         },
         load: vi.fn(),
         save: vi.fn()

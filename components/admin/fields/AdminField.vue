@@ -1,11 +1,12 @@
 <script setup lang="ts">
 const props = withDefaults(defineProps<{
-  modelValue: string | number | boolean
+  modelValue?: string | number | boolean
   label: string
   type?: "text" | "textarea" | "number" | "checkbox"
   rows?: number
   placeholder?: string
 }>(), {
+  modelValue: "",
   type: "text",
   rows: 3,
   placeholder: ""
@@ -33,7 +34,7 @@ function handleInput(event: Event) {
     <textarea
       v-if="type === 'textarea'"
       class="admin-input w-full"
-      :value="String(modelValue)"
+      :value="String(modelValue ?? '')"
       :rows="rows"
       :placeholder="placeholder"
       @input="handleInput"
@@ -48,7 +49,7 @@ function handleInput(event: Event) {
       v-else
       class="admin-input w-full"
       :type="type"
-      :value="modelValue"
+      :value="modelValue ?? ''"
       :placeholder="placeholder"
       @input="handleInput"
     />

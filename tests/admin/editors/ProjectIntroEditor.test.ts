@@ -7,13 +7,11 @@ vi.mock("@/lib/admin/usePocketBaseContent", function () {
     usePocketBaseContent: vi.fn(function () {
       return {
         state: {
-          value: {
-            fields: { infoCards: [] },
-            loading: false,
-            saving: false,
-            error: null,
-            dirty: false
-          }
+          fields: { infoCards: [], eligibilityZh: [], eligibilityEn: [], feeZh: [], feeEn: [] },
+          loading: false,
+          saving: false,
+          error: null,
+          dirty: false
         },
         load: vi.fn(),
         save: vi.fn()

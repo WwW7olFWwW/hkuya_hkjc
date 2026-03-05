@@ -1,95 +1,56 @@
 <script setup lang="ts">
-import { onMounted, ref } from "vue"
+import { onMounted } from "vue"
 import { usePocketBaseContent } from "@/lib/admin/usePocketBaseContent"
+import AdminField from "@/components/admin/fields/AdminField.vue"
+import AdminRepeater from "@/components/admin/fields/AdminRepeater.vue"
+import TextareaArray from "@/components/admin/fields/TextareaArray.vue"
 
 const { state, load, save } = usePocketBaseContent("positions")
-const formReady = ref(false)
+onMounted(load)
 
-function convertArraysToStrings() {
-  if (!state.fields || !state.fields.groups || !Array.isArray(state.fields.groups)) return
-  state.fields.groups.forEach(function (group: any) {
-    if (group && group.positions && Array.isArray(group.positions)) {
-      group.positions.forEach(function (pos: any) {
-        if (!pos) return
-        if (Array.isArray(pos.companyLines)) pos.companyLines = pos.companyLines.join('\n')
-        if (Array.isArray(pos.roleLines)) pos.roleLines = pos.roleLines.join('\n')
-        if (Array.isArray(pos.requirements)) pos.requirements = pos.requirements.join('\n')
-        if (Array.isArray(pos.duties)) pos.duties = pos.duties.join('\n')
-      })
-    }
-  })
-}
-
-onMounted(async function () {
-  await load()
-  convertArraysToStrings()
-  formReady.value = true
-})
-
-async function handleSave() {
-  try {
-    const fieldsToSave = JSON.parse(JSON.stringify(state.fields))
-    if (fieldsToSave.groups) {
-      fieldsToSave.groups.forEach(function (group: any) {
-        if (group.positions) {
-          group.positions.forEach(function (pos: any) {
-            if (typeof pos.companyLines === 'string') pos.companyLines = pos.companyLines.split('\n').filter(Boolean)
-            if (typeof pos.roleLines === 'string') pos.roleLines = pos.roleLines.split('\n').filter(Boolean)
-            if (typeof pos.requirements === 'string') pos.requirements = pos.requirements.split('\n').filter(Boolean)
-            if (typeof pos.duties === 'string') pos.duties = pos.duties.split('\n').filter(Boolean)
-          })
-        }
-      })
-    }
-
-    const originalFields = state.fields
-    state.fields = fieldsToSave
-    await save()
-    state.fields = originalFields
-  } catch (error) {
-    console.error("儲存失敗", error)
-  }
-}
+const emptyPosition = { companyLines: [], roleLines: [], requirements: [], duties: [] }
+const emptyGroup = { location: "", description: "", positions: [JSON.parse(JSON.stringify(emptyPosition))] }
 </script>
 
 <template>
   <div class="admin-card p-6">
     <h2 class="text-xl font-semibold mb-4">實習崗位編輯</h2>
-
     <div v-if="state.loading" class="admin-feedback">載入中...</div>
     <div v-else-if="state.error" class="admin-feedback admin-feedback--error">{{ state.error }}</div>
-
-    <FormKit v-else-if="formReady" type="form" v-model="state.fields" @submit="handleSave">
-      <FormKit type="text" name="titleZh" label="標題（中文）" />
-      <FormKit type="text" name="titleEn" label="標題（英文）" />
-
-      <FormKit type="list" dynamic name="groups" label="地區分組"
-        add-label="+ 新增地區" :min="1">
-        <FormKit type="text" name="location" label="地區" />
-        <FormKit type="textarea" name="description" label="地區描述" :rows="2" />
-
-        <FormKit type="list" dynamic name="positions" label="崗位列表"
-          add-label="+ 新增崗位" :min="1">
-          <FormKit type="textarea" name="companyLines"
-            label="公司名稱（每行一條）" :rows="2"
-            help="每行輸入一條公司名稱" />
-          <FormKit type="textarea" name="roleLines"
-            label="崗位名稱（每行一條）" :rows="2"
-            help="每行輸入一條崗位名稱" />
-          <FormKit type="textarea" name="requirements"
-            label="崗位要求（每行一條）" :rows="3"
-            help="每行輸入一條要求" />
-          <FormKit type="textarea" name="duties"
-            label="工作內容（每行一條）" :rows="3"
-            help="每行輸入一條工作內容" />
-        </FormKit>
-      </FormKit>
-    </FormKit>
-
-    <div class="mt-4 flex gap-3">
-      <button type="button" @click="handleSave" :disabled="state.saving" class="admin-action">
-        {{ state.saving ? "儲存中..." : "儲存" }}
-      </button>
-    </div>
+    <form v-else @submit.prevent="save">
+      <AdminField label="標題（中文）" v-model="state.fields.titleZh" />
+      <AdminField label="標題（英文）" v-model="state.fields.titleEn" />
+      <AdminRepeater
+        v-model="state.fields.groups"
+        :empty-item="emptyGroup"
+        add-label="+ 新增地區"
+        label="地區分組"
+        :min="1"
+      >
+        <template #item="{ item: group }">
+          <AdminField label="地區" v-model="group.location" />
+          <AdminField label="地區描述" v-model="group.description" type="textarea" :rows="2" />
+          <AdminRepeater
+            v-model="group.positions"
+            :empty-item="emptyPosition"
+            add-label="+ 新增崗位"
+            label="崗位列表"
+            :min="1"
+          >
+            <template #item="{ item: pos }">
+              <TextareaArray v-model="pos.companyLines" label="公司名稱（每行一條）" :rows="2" />
+              <TextareaArray v-model="pos.roleLines" label="崗位名稱（每行一條）" :rows="2" />
+              <TextareaArray v-model="pos.requirements" label="崗位要求（每行一條）" :rows="3" />
+              <TextareaArray v-model="pos.duties" label="工作內容（每行一條）" :rows="3" />
+            </template>
+          </AdminRepeater>
+        </template>
+      </AdminRepeater>
+      <div class="mt-4">
+        <button type="submit" :disabled="state.saving" class="admin-action">
+          {{ state.saving ? "儲存中..." : "儲存" }}
+        </button>
+      </div>
+    </form>
   </div>
 </template>

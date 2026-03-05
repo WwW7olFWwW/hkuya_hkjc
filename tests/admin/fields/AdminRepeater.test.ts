@@ -65,4 +65,68 @@ describe("AdminRepeater", function () {
     const removeBtn = wrapper.find("[data-test='remove-btn']")
     expect(removeBtn.attributes("disabled")).toBeDefined()
   })
+
+  it("moves item up on move up button click", async function () {
+    const wrapper = mount(AdminRepeater, {
+      props: {
+        modelValue: [{ name: "a" }, { name: "b" }, { name: "c" }],
+        emptyItem: { name: "" }
+      },
+      slots: {
+        item: '<div class="test-item">item</div>'
+      }
+    })
+    const moveUpBtns = wrapper.findAll("[data-test='move-up-btn']")
+    await moveUpBtns[1].trigger("click")
+    const emitted = wrapper.emitted("update:modelValue")
+    expect(emitted).toBeTruthy()
+    expect(emitted[0][0]).toEqual([{ name: "b" }, { name: "a" }, { name: "c" }])
+  })
+
+  it("moves item down on move down button click", async function () {
+    const wrapper = mount(AdminRepeater, {
+      props: {
+        modelValue: [{ name: "a" }, { name: "b" }, { name: "c" }],
+        emptyItem: { name: "" }
+      },
+      slots: {
+        item: '<div class="test-item">item</div>'
+      }
+    })
+    const moveDownBtns = wrapper.findAll("[data-test='move-down-btn']")
+    await moveDownBtns[0].trigger("click")
+    const emitted = wrapper.emitted("update:modelValue")
+    expect(emitted).toBeTruthy()
+    expect(emitted[0][0]).toEqual([{ name: "b" }, { name: "a" }, { name: "c" }])
+  })
+
+  it("disables move up for first item", function () {
+    const wrapper = mount(AdminRepeater, {
+      props: {
+        modelValue: [{ name: "a" }, { name: "b" }],
+        emptyItem: { name: "" }
+      },
+      slots: {
+        item: '<div class="test-item">item</div>'
+      }
+    })
+    const moveUpBtns = wrapper.findAll("[data-test='move-up-btn']")
+    expect(moveUpBtns[0].attributes("disabled")).toBeDefined()
+    expect(moveUpBtns[1].attributes("disabled")).toBeUndefined()
+  })
+
+  it("disables move down for last item", function () {
+    const wrapper = mount(AdminRepeater, {
+      props: {
+        modelValue: [{ name: "a" }, { name: "b" }],
+        emptyItem: { name: "" }
+      },
+      slots: {
+        item: '<div class="test-item">item</div>'
+      }
+    })
+    const moveDownBtns = wrapper.findAll("[data-test='move-down-btn']")
+    expect(moveDownBtns[0].attributes("disabled")).toBeUndefined()
+    expect(moveDownBtns[1].attributes("disabled")).toBeDefined()
+  })
 })

@@ -28,6 +28,24 @@ function removeItem(index: number) {
   newList.splice(index, 1)
   emit("update:modelValue", newList)
 }
+
+function moveUp(index: number) {
+  if (index === 0) return
+  const newList = props.modelValue.slice()
+  const temp = newList[index]
+  newList[index] = newList[index - 1]
+  newList[index - 1] = temp
+  emit("update:modelValue", newList)
+}
+
+function moveDown(index: number) {
+  if (index === props.modelValue.length - 1) return
+  const newList = props.modelValue.slice()
+  const temp = newList[index]
+  newList[index] = newList[index + 1]
+  newList[index + 1] = temp
+  emit("update:modelValue", newList)
+}
 </script>
 
 <template>
@@ -39,15 +57,35 @@ function removeItem(index: number) {
       class="border border-slate-200 rounded-lg p-4 mb-3 relative"
     >
       <slot name="item" :item="item" :index="index"></slot>
-      <button
-        type="button"
-        data-test="remove-btn"
-        class="admin-action--subtle text-red-500 text-sm mt-2"
-        :disabled="modelValue.length <= min"
-        @click="removeItem(index)"
-      >
-        刪除
-      </button>
+      <div class="flex gap-2 mt-2">
+        <button
+          type="button"
+          data-test="move-up-btn"
+          class="admin-action--subtle text-sm"
+          :disabled="index === 0"
+          @click="moveUp(index)"
+        >
+          ↑ 上移
+        </button>
+        <button
+          type="button"
+          data-test="move-down-btn"
+          class="admin-action--subtle text-sm"
+          :disabled="index === modelValue.length - 1"
+          @click="moveDown(index)"
+        >
+          ↓ 下移
+        </button>
+        <button
+          type="button"
+          data-test="remove-btn"
+          class="admin-action--subtle text-red-500 text-sm"
+          :disabled="modelValue.length <= min"
+          @click="removeItem(index)"
+        >
+          刪除
+        </button>
+      </div>
     </div>
     <button
       type="button"

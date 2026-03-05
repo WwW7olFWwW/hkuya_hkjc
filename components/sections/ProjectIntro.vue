@@ -99,7 +99,7 @@ function getInfoIcon(index: number) {
               <button type="button" class="relative w-full text-left poster-card">
                 <img
                   :src="resolveAsset(content.fields.posterUrl)"
-                  alt="實習計劃海報"
+                  alt="HKUYA HKJC 暑期實習計劃海報"
                   class="w-full rounded-xl shadow-md transition-transform duration-200 hover:scale-[1.02]"
                 />
                 <span class="absolute bottom-3 right-3 pill-accent shadow">
@@ -109,7 +109,7 @@ function getInfoIcon(index: number) {
               </button>
             </DialogTrigger>
             <DialogScrollContent class="max-w-5xl">
-              <img :src="resolveAsset(content.fields.posterUrl)" alt="實習計劃海報" class="w-full rounded-lg" />
+              <img :src="resolveAsset(content.fields.posterUrl)" alt="HKUYA HKJC 暑期實習計劃海報" class="w-full rounded-lg" />
             </DialogScrollContent>
           </Dialog>
 

@@ -45,7 +45,12 @@ function buildMailto(email: string) {
             <span class="icon-pill">
               <Phone class="h-4 w-4" />
             </span>
-            <span>Tel: {{ content.fields.tel }}</span>
+            <span>
+              Tel:
+              <a :href="'tel:' + content.fields.tel" class="text-brand-blue hover:underline">
+                {{ content.fields.tel }}
+              </a>
+            </span>
           </div>
         </div>
       </div>

@@ -6,6 +6,7 @@ import TimelineSection from "@/components/sections/TimelineSection.vue"
 import PositionsSection from "@/components/sections/PositionsSection.vue"
 import AboutUsSection from "@/components/sections/AboutUsSection.vue"
 import ContactSection from "@/components/sections/ContactSection.vue"
+import LoadingSpinner from "@/components/ui/LoadingSpinner.vue"
 import { useContentStore } from "@/lib/content/store"
 import { applyContentUpdate, subscribeContentChanges } from "@/lib/content/realtime"
 
@@ -37,7 +38,5 @@ onBeforeUnmount(function () {
     <AboutUsSection :content="contentState.about_us" />
     <ContactSection :content="contentState.contact" />
   </div>
-  <div v-else class="py-16 text-center text-sm text-slate-500">
-    內容載入中...
-  </div>
+  <LoadingSpinner v-else />
 </template>

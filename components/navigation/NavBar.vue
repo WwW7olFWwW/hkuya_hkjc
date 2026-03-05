@@ -67,8 +67,8 @@ const navItems = computed(function (): HeaderLink[] {
 <template>
   <header class="site-header fixed top-0 inset-x-0 z-50 gradient-bar glass-bar border-b border-white/10">
     <div class="mx-auto flex items-center h-full w-full px-4 sm:px-6 lg:px-8">
-      <a href="#project-intro" class="flex items-center gap-3">
-        <img :src="resolveAsset('/images/3x.png')" alt="HKUYA" class="w-auto" :style="logoStyle" />
+      <a href="#" class="flex items-center gap-3">
+        <img :src="resolveAsset('/images/3x.png')" alt="HKUYA 標誌" class="w-auto" :style="logoStyle" />
       </a>
 
       <nav class="nav-desktop">
@@ -104,7 +104,6 @@ const navItems = computed(function (): HeaderLink[] {
                 class="mobile-link"
               >
                 <span class="text-base font-medium">{{ item.titleZh }}</span>
-                <span class="text-xs opacity-80">{{ item.titleEn }}</span>
               </a>
             </div>
           </SheetContent>
